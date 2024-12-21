@@ -19,6 +19,7 @@ BCP-AT1N-L: works
 Currently, integration contains sensor for charger with following parameters
 
 Value: Charger state (standby | waiting | starting charging | charging | abnormal)
+
 Attributes:
 - Current A
 - Current B
