@@ -3,7 +3,7 @@ import voluptuous as vol
 from .const import DOMAIN
 
 class BenyConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
-    """Handle a config flow for the Beny Charger integration."""
+    """Handle a config flow for the Beny WiFI integration"""
 
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""

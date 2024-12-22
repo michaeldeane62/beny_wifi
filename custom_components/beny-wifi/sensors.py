@@ -15,16 +15,16 @@ class BenyStateSensor(Entity):
 
     @property
     def name(self):
-        """Return the name of the sensor."""
+        """Return the name of the sensor"""
         return self._name
 
     @property
     def state(self):
-        """Return the current state of the sensor."""
+        """Return the current state of the sensor"""
         return self._state
 
     async def async_update(self):
-        """Fetch the latest state from the charger."""
+        """Fetch the latest state from the charger"""
         _LOGGER.debug("Updating charger state...")
         response = await self._fetch_state()
 
@@ -33,14 +33,14 @@ class BenyStateSensor(Entity):
             self._state = STATES.get(state_code, "unknown")
             _LOGGER.debug(f"Updated state: {self._state}")
         else:
-            _LOGGER.warning("Failed to update EV Charger state.")
+            _LOGGER.warning("Failed to update charger state")
 
 
 class BenyMeasurementSensor(Entity):
-    """Representation of an charger measurement sensor."""
+    """Representation of an charger measurement sensor"""
 
     def __init__(self, name, fetch_state, measurement_type):
-        """Initialize the sensor."""
+        """Initialize the sensor"""
         self._name = name
         self._state = None
         self._fetch_state = fetch_state
@@ -48,21 +48,21 @@ class BenyMeasurementSensor(Entity):
 
     def get_ascii(data):
         # Convert hex to ASCII
-        ascii_data = binascii.unhexlify(data).decode('utf-8', errors='replace')  # Replace errors if any
+        ascii_data = binascii.unhexlify(data).decode('utf-8', errors='replace')
         return ascii_data
 
     @property
     def name(self):
-        """Return the name of the sensor."""
+        """Return the name of the sensor"""
         return self._name
 
     @property
     def state(self):
-        """Return the current measurement value."""
+        """Return the current measurement value"""
         return self._state
 
     async def async_update(self):
-        """Fetch the latest measurement from the charger."""
+        """Fetch the latest measurement from the charger"""
         _LOGGER.debug(f"Updating {self._name}...")
         response = await self._fetch_state()
         response = get_ascii(response)
