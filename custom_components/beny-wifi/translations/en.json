@@ -1,0 +1,47 @@
+{
+    "config": {
+        "title": "Beny WiFi",
+        "step": {
+            "user": {
+                "title": "Configure Beny charger",
+                "description": "Set up your charger by providing the IP address.",
+                "data": {
+                    "ip_address": "IP Address",
+                    "port": "Port"
+                }
+            }
+        },
+        "error": {
+            "cannot_connect": "Failed to connect to the charger. Please check the IP address and port.",
+            "unknown": "An unknown error occurred."
+        },
+        "abort": {
+            "already_configured": "This charger is already configured."
+        }
+    },
+    "services": {
+        "start_charge": {
+            "name": "Start Charge",
+            "description": "Send a command to start charging the EV."
+        },
+        "stop_charge": {
+            "name": "Stop Charge",
+            "description": "Send a command to stop charging the EV."
+        }
+    },
+    "entity": {
+        "sensor": {
+            "ev_charger_state": {
+                "name": "EV Charger State",
+                "state": {
+                    "standby": "Standby",
+                    "waiting": "Waiting",
+                    "charging": "Charging",
+                    "stopping": "Stopping",
+                    "abnormal": "Abnormal",
+                    "unknown": "Unknown"
+                }
+            }
+        }
+    }
+}

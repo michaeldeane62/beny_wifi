@@ -1,0 +1,4 @@
+start_charge:
+  description: "Send start charge command to the charger"
+stop_charge:
+  description: "Send stop charge command to the charger"

@@ -1,0 +1,9 @@
+{
+    "domain": "beny-wifi",
+    "name": "ZJ Beny Wifi",
+    "version": "0.0.1",
+    "documentation": "",
+    "requirements": [],
+    "codeowners": ["@Jarauvi"],
+    "iot_class": "local_polling"
+}
