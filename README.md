@@ -28,26 +28,26 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 Currently, integration contains sensor for charger with following parameters
 
 Value: 
-- Charger state (standby | waiting | starting charging | charging | abnormal)
+- Charger state (*standby | waiting | starting charging | charging | abnormal*)
 
 Attributes:
-- Current A [A]
-- Current B [A]
-- Current C [A]
-- Voltage A [V]
-- Voltage B [V]
-- Voltage C [V]
-- Power [kW]
-- Total energy [kWh]
-- Timer start time [UTC timestamp]
-- Timer end time [UTC timestamp]
+- Current A *[A]*
+- Current B *[A]*
+- Current C *[A]*
+- Voltage A *[V]*
+- Voltage B *[V]*
+- Voltage C *[V]*
+- Power *[kW]*
+- Total energy *[kWh]*
+- Timer start time *[UTC timestamp]*
+- Timer end time *[UTC timestamp]*
 
 ### Actions
 
 Currently integration supports following actions:
 - start charging
 - stop charging
-- set timer (start time > end time)
+- set timer (*start time | end time*)
 
 ### Roadmap
 
