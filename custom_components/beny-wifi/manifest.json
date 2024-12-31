@@ -5,5 +5,7 @@
   "config_flow": true,
   "requirements": [],
   "codeowners": ["@Jarauvi"],
-  "iot_class": "local_polling"
+  "iot_class": "local_polling",
+  "documentation": "https://github.com/Jarauvi/beny-wifi/tree/main",
+  "issue_tracker": "https://github.com/Jarauvi/beny-wifi/issues"
 }

@@ -67,8 +67,8 @@ class BenyWifiSensor(Entity):
     def device_info(self) -> DeviceInfo:
         """Return device information."""
         return DeviceInfo(
-            identifiers = {(DOMAIN, self.coordinator.config_entry.entry_id)},
-            name = self._device_id,
+            identifiers = {(DOMAIN, self._device_id)},
+            name=f"Beny Charger {self._device_id}",
             manufacturer = "ZJ Beny",
-            model = self._device_model
+            model = self._device_model,
         )

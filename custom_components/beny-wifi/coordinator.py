@@ -79,6 +79,8 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if end <= start:
                 end += timedelta(days=1)
 
+            data['state'] = data['state'].lower()
+
             data['power'] = float(data['power']) / 10
             data['timer_start'] = start
             data['timer_end'] = end

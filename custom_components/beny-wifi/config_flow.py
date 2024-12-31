@@ -31,18 +31,25 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
     CONNECTION_CLASS = config_entries.CONN_CLASS_LOCAL_POLL
 
+    def __init__(self):
+        """Handle user initialized config flow."""
+        self._errors = {}
+
     async def async_step_user(self, user_input=None):
         """Handle the initial step."""
+
+        self._errors = {}
+
         if user_input is not None:
             dev_data = await self._test_device(user_input[CONF_IP], user_input[CONF_PORT])
             if dev_data is not None:
 
-                if await self._device_exists(dev_data["serial"]):
-                    return self.async_abort(reason="device_already_configured")
+                if not await self._device_exists(dev_data["serial"]):
+                    user_input[MODEL] = dev_data["model"]
+                    user_input[SERIAL] = dev_data["serial"]
+                    return self.async_create_entry(title="Beny Wifi", data=user_input)
 
-                user_input[MODEL] = dev_data["model"]
-                user_input[SERIAL] = dev_data["serial"]
-                return self.async_create_entry(title="Beny Wifi", data=user_input)
+                self._errors["base"] = "device_already_configured"
 
         return self.async_show_form(
             step_id="user",
@@ -51,8 +58,9 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     vol.Required(CONF_IP): str,
                     vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
                     vol.Optional(SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
-                },
-            )
+                }
+            ),
+            errors=self._errors
         )
 
     async def _device_exists(self, device_id: str) -> bool:
@@ -69,26 +77,38 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 sock.settimeout(5)
                 sock.sendto(request, (ip, port))
+            except Exception:  # noqa: BLE001
+                self._errors["base"] = "cannot_connect"
+                return None
 
+            try:
                 response, addr = sock.recvfrom(1024)
                 sock.close()
                 response = response.decode('ascii')
                 data = read_message(response)
                 dev_data['model'] = data['model']
+            except Exception:  # noqa: BLE001
+                self._errors["base"] = "cannot_communicate"
+                return None
 
+            try:
                 request = build_message(CLIENT_MESSAGE.POLL_DEVICES).encode('ascii')
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 sock.settimeout(5)
                 sock.sendto(request, (ip, port))
+            except Exception:  # noqa: BLE001
+                self._errors["base"] = "cannot_connect"
 
+            try:
                 response, addr = sock.recvfrom(1024)
                 sock.close()
                 response = response.decode('ascii')
                 data = read_message(response)
                 dev_data['serial'] = data['serial']
-
-                return dev_data  # noqa: TRY300
             except Exception:  # noqa: BLE001
+                self._errors["base"] = "cannot_communicate"
                 return None
+
+            return dev_data  # noqa: TRY300
 
         return await asyncio.to_thread(sync_socket_communication)
