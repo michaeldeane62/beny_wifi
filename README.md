@@ -1,20 +1,31 @@
+<div align="center">
+    <img alt="beny-wifi" height="256px" src="https://github.com/Jarauvi/beny-wifi">
+</div>
+
 # beny-wifi
 
-This repository contains Home Assistant addon for controlling and retrieving information from ZJ Beny 3-phase chargers. 
+![Home Assistant](https://img.shields.io/badge/home%20assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white)
+https://img.shields.io/badge/license-GPL%203.0-green?link=https%3A%2F%2Fopensource.org%2Flicense%2Fgpl-3-0
+![License](https://img.shields.io/badge/license-GPL%203.0-green?link=https%3A%2F%2Fopensource.org%2Flicense%2Fgpl-3-0
+)
 
-Thanks to plain unencrypted udp packets, this integration mimics ZBox phone app's communication with charger.
+:warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
-**Supported chargers**
+This repository contains Home Assistant addon for controlling and retrieving information from ZJ Beny 3-phase EV chargers. 
 
-1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. 
+This integration mimics ZBox phone app's communication with charger. I think that any charger communicating with ZBox app should work.
 
-**Currently tested with models**
+### Supported chargers
 
-- BCP-AT1N-L: works
+1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have possibility to test one, please share your results and we'll add the model to supported devices :pray: 
 
-*DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR CASUALTIES. USE WITH YOUR OWN RISK*
+### Confirmed to work with models
 
-**Sensors**
+| Model              | Firmware version |       Status      |
+| ------------------ | ---------------- | ----------------- |
+| BCP-AT1N-L         | 1.26             | :heavy_check_mark:|
+
+### Sensors
 
 Currently, integration contains sensor for charger with following parameters
 
@@ -22,14 +33,26 @@ Value:
 - Charger state (standby | waiting | starting charging | charging | abnormal)
 
 Attributes:
-- Current A
-- Current B
-- Current C
-- Voltage A
-- Voltage B
-- Voltage C
-- Power
+- Current A [A]
+- Current B [A]
+- Current C [A]
+- Voltage A [V]
+- Voltage B [V]
+- Voltage C [V]
+- Power [kW]
+- Total energy [kWh]
+- Timer start time [UTC timestamp]
+- Timer end time [UTC timestamp]
 
-**Services**
+### Actions
 
-For now, integration supports only commands to start and stop charging
+Currently integration supports following actions:
+- start charging
+- stop charging
+- set timer (start time > end time)
+
+### Roadmap
+
+I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
+- action to set max amps
+- map missing parameters as sensors (like outdoor temperature)

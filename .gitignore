@@ -5,3 +5,4 @@ hacs.json
 requirements.test.txt
 setup.cfg
 venv
+custom_components/services.yaml
