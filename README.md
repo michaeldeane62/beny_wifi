@@ -31,12 +31,12 @@ Value:
 - Charger state (*standby | waiting | starting charging | charging | abnormal*)
 
 Attributes:
-- Current A *[A]*
-- Current B *[A]*
-- Current C *[A]*
-- Voltage A *[V]*
-- Voltage B *[V]*
-- Voltage C *[V]*
+- Current L1 *[A]*
+- Current L2 *[A]*
+- Current L3 *[A]*
+- Voltage L1 *[V]*
+- Voltage L2 *[V]*
+- Voltage L3 *[V]*
 - Power *[kW]*
 - Total energy *[kWh]*
 - Timer start time *[UTC timestamp]*
