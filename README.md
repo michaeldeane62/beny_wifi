@@ -9,7 +9,7 @@
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
-This repository contains Home Assistant addon for controlling and retrieving information from ZJ Beny EV chargers. 
+This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers. 
 
 Integration mimics ZBox phone app's communication with charger. I have not mapped all parameters and commands yet. I think that any charger communicating with ZBox app should work.
 
