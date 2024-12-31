@@ -1,4 +1,4 @@
-<div align="center">
+<div align="left">
     <img alt="beny-wifi" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/logo.png?raw=true">
 </div>
 
@@ -15,7 +15,7 @@ Integration mimics ZBox phone app's communication with charger. I have not mappe
 
 ### Supported chargers
 
-1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have possibility to test one, please share your results and we'll add the model to supported devices :pray: 
+I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have one and you're willing to test the compatibility, please share your results and we'll add the model to supported devices :pray: 
 
 ### Confirmed to work with models
 
