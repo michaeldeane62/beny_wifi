@@ -82,6 +82,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             data['state'] = data['state'].lower()
 
             data['power'] = float(data['power']) / 10
+            data['total_kwh'] = float(data['total_kwh']) / 10
             data['timer_start'] = start
             data['timer_end'] = end
 

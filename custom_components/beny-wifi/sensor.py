@@ -20,6 +20,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         BenyWifiSensor(coordinator, "current2", "Current L2", "A", device_id=device_id, device_model=device_model),
         BenyWifiSensor(coordinator, "current3", "Current L3", "A", device_id=device_id, device_model=device_model),
         BenyWifiSensor(coordinator, "max_current", "Max Current", "A", device_id=device_id, device_model=device_model),
+        BenyWifiSensor(coordinator, "total_kwh", "Total Energy", "kWh", device_id=device_id, device_model=device_model),
         BenyWifiSensor(coordinator, "timer_start", "Timer Start", device_id=device_id, device_model=device_model),
         BenyWifiSensor(coordinator, "timer_end", "Timer End", device_id=device_id, device_model=device_model),
     ]
