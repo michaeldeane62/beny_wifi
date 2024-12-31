@@ -6,8 +6,8 @@
 
 ![Home Assistant](https://img.shields.io/badge/home%20assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white)
 https://img.shields.io/badge/license-GPL%203.0-green?link=https%3A%2F%2Fopensource.org%2Flicense%2Fgpl-3-0
-![License](https://img.shields.io/badge/license-GPL%203.0-green?link=https%3A%2F%2Fopensource.org%2Flicense%2Fgpl-3-0
-gi)
+![Static Badge](https://img.shields.io/badge/license-GPL%203.0-green?link=https%3A%2F%2Fopensource.org%2Flicense%2Fgpl-3-0)
+
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
