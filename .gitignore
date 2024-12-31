@@ -1,0 +1,7 @@
+custom_components/beny-wifi/__pycache__/*
+tests/*
+.pre-commit-config.yaml
+hacs.json
+requirements.test.txt
+setup.cfg
+venv

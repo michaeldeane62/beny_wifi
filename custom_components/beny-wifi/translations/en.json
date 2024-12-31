@@ -1,0 +1,29 @@
+{
+    "title": "Beny Wifi",
+    "config": {
+      "step": {
+        "user": {
+          "title": "Configure Beny Charger",
+          "description": "Set up Beny Wifi integration.",
+          "data": {
+            "ip": "IP Address",
+            "port": "Port",
+            "update_interval": "Update interval"
+          }
+        }
+      },
+      "error": {
+        "device_already_configured": "This device is already configured.",
+        "cannot_connect": "Cannot connect to the device. Please check the IP address and port."
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Options",
+          "description": "Update the options for your Beny Wifi charger."
+        }
+      }
+    }
+  }
+  
