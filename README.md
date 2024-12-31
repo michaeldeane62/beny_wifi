@@ -21,7 +21,7 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 
 | Model              | Firmware version |       Status      |
 | ------------------ | ---------------- | ----------------- |
-| BCP-AT1N-L         | 1.26             | :heavy_check_mark:|
+| BCP-AT1N-L         | 1.26             |:white_check_mark: |
 
 ### Sensors
 
