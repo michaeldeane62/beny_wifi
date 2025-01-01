@@ -2,7 +2,7 @@
     <img alt="beny-wifi" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/logo.png?raw=true">
 </div>
 
-# beny-wifi
+# beny_wifi
 
 ![Home Assistant](https://img.shields.io/badge/home%20assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white)
 
