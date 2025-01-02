@@ -2,7 +2,7 @@
     <img alt="beny-wifi" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/logo.png?raw=true">
 </div>
 
-# beny_wifi
+# Beny Wifi
 
 <div align="left">
     <img alt="Home Assistant" src="https://img.shields.io/badge/home%20assistant-%2341BDF5.svg"/>
@@ -12,9 +12,9 @@
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
-This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers. 
+This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers via Wifi. 
 
-Integration mimics ZBox phone app's communication with charger. I have not mapped all parameters and commands yet. I think that any charger communicating with ZBox app should work.
+Integration mimics ZBox phone app's communication with charger. All parameters and commands are not mapped yet, but assumption is that any charger communicating using ZBox app should work with integration.
 
 ### Supported chargers
 
