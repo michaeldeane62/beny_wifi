@@ -5,12 +5,10 @@
 # beny_wifi
 
 <div align="left">
-    <img alt="home_assistant" src="https://img.shields.io/badge/home%20assistant-%2341BDF5.svg">
+    <img alt="Home Assistant" src="https://img.shields.io/badge/home%20assistant-%2341BDF5.svg"/>
+    <img alt="Local polling" src="https://img.shields.io/badge/IOT_class-Local_polling-blue">
+    <img alt="Static Badge" src="https://img.shields.io/badge/License-GPL_3.0-green">
 </div>
-
-![Home Assistant](https://img.shields.io/badge/home%20assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white)
-![Static Badge](https://img.shields.io/badge/Licence-GPL%203.0-green)
-![Static Badge](https://img.shields.io/badge/IOT_class-Local_polling-blue)
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
