@@ -4,9 +4,13 @@
 
 # beny_wifi
 
+<div align="center">
 ![Home Assistant](https://img.shields.io/badge/home%20assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white)
+</div>
+<div align="center">
 ![Static Badge](https://img.shields.io/badge/Licence-GPL%203.0-green)
 ![Static Badge](https://img.shields.io/badge/IOT_class-Local_polling-blue)
+</div>
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
