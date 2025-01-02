@@ -28,22 +28,21 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 
 ### Sensors
 
-Currently, integration contains sensor for charger with following parameters
+Currently, integration contains creates charger devices with following sensors:
 
-Value: 
-- Charger state (*standby | waiting | starting charging | charging | abnormal*)
-
-Attributes:
-- Current L1 *[A]*
-- Current L2 *[A]*
-- Current L3 *[A]*
-- Voltage L1 *[V]*
-- Voltage L2 *[V]*
-- Voltage L3 *[V]*
-- Power *[kW]*
-- Total energy *[kWh]*
-- Timer start time *[UTC timestamp]*
-- Timer end time *[UTC timestamp]*
+| Sensor             | Unit                                                         | Description                    |
+| ------------------ | ------------------------------------------------------------ | ------------------------------ |
+| state              | abnormal unplugged standby starting unknown waiting charging | Charger state                  |
+| current1           | [A]                                                          | Current L1                     |
+| current2           | [A]                                                          | Current L2                     |
+| current3           | [A]                                                          | Current L3                     |
+| voltage1           | [V]                                                          | Voltage L1                     |
+| voltage2           | [V]                                                          | Voltage L2                     |
+| voltage3           | [V]                                                          | Voltage L3                     |
+| power              | [kW]                                                         | Current power consumption      |
+| total_energy       | [kWh]                                                        | Session based charged capacity |
+| timer_start        | [timestamp]                                                  | Currently set timer start time |
+| timer_end          | [timestamp]                                                  | Currently set timer end time   |
 
 ### Actions
 
