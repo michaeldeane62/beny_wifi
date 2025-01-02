@@ -30,29 +30,30 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 
 Currently, integration contains creates charger devices with following sensors:
 
-| Sensor             | Unit                                                         | Description                    |
-| ------------------ | ------------------------------------------------------------ | ------------------------------ |
-| state              | abnormal unplugged standby starting unknown waiting charging | Charger state                  |
-| current1           | [A]                                                          | Current L1                     |
-| current2           | [A]                                                          | Current L2                     |
-| current3           | [A]                                                          | Current L3                     |
-| voltage1           | [V]                                                          | Voltage L1                     |
-| voltage2           | [V]                                                          | Voltage L2                     |
-| voltage3           | [V]                                                          | Voltage L3                     |
-| power              | [kW]                                                         | Current power consumption      |
-| total_energy       | [kWh]                                                        | Session based charged capacity |
-| timer_start        | [timestamp]                                                  | Currently set timer start time |
-| timer_end          | [timestamp]                                                  | Currently set timer end time   |
+| Sensor             | Unit            | Description                                                                   |
+| ------------------ | --------------- | ----------------------------------------------------------------------------- |
+| state              | [charger state] | Charger state *(abnormal unplugged standby starting unknown waiting charging)*|
+| current1           | [A]             | Current L1                                                                    |
+| current2           | [A]             | Current L2                                                                    |
+| current3           | [A]             | Current L3                                                                    |
+| voltage1           | [V]             | Voltage L1                                                                    |
+| voltage2           | [V]             | Voltage L2                                                                    |
+| voltage3           | [V]             | Voltage L3                                                                    |
+| power              | [kW]            | Current power consumption                                                     |
+| total_energy       | [kWh]           | Session based charged capacity                                                |
+| timer_start        | [timestamp]     | Currently set timer start time                                                |
+| timer_end          | [timestamp]     | Currently set timer end time                                                  |
 
 ### Actions
 
 Currently integration supports following actions:
-- start charging
-- stop charging
-- set timer (*start time | end time*)
+- beny_wifi.start_charging (*device_id*)
+- beny_wifi.stop_charging (*device_id*)
+- beny_wifi.set_timer (*device_id | start time | end time*)
 
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
 - action to set max amps
 - map missing parameters as sensors (like outdoor temperature)
+- add integration to hacs
