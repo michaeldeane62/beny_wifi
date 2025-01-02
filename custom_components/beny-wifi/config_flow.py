@@ -44,9 +44,9 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             dev_data = await self._test_device(user_input[CONF_IP], user_input[CONF_PORT])
             if dev_data is not None:
 
-                if not await self._device_exists(dev_data["serial"]):
+                if not await self._device_exists(dev_data["serial_number"]):
                     user_input[MODEL] = dev_data["model"]
-                    user_input[SERIAL] = dev_data["serial"]
+                    user_input[SERIAL] = dev_data["serial_number"]
                     return self.async_create_entry(title="Beny Wifi", data=user_input)
 
                 self._errors["base"] = "device_already_configured"
@@ -63,10 +63,10 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors
         )
 
-    async def _device_exists(self, device_id: str) -> bool:
-        """Check if a device with the given ID already exists."""
+    async def _device_exists(self, serial_number: str) -> bool:
+        """Check if a device with the given serial number already exists."""
         device_registry = async_get_device_registry(self.hass)
-        return any(device.name == device_id for device in device_registry.devices.values())
+        return any(device.serial_number == serial_number for device in device_registry.devices.values())
 
     async def _test_device(self, ip, port) -> dict | None:
         """Check is model can be retrieved from device."""
@@ -104,7 +104,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sock.close()
                 response = response.decode('ascii')
                 data = read_message(response)
-                dev_data['serial'] = data['serial']
+                dev_data['serial_number'] = data['serial']
             except Exception:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
                 return None

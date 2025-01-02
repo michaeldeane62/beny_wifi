@@ -4,11 +4,10 @@ from typing import Final
 
 from homeassistant.const import Platform
 
-COORDINATOR = "coordinator"
 PLATFORMS: Final = [Platform.SENSOR]
 
 NAME: Final = "Beny Wifi"
-DOMAIN: Final = "beny-wifi"
+DOMAIN: Final = "beny_wifi"
 VERSION = "0.0.1"
 MODEL = "model"
 SERIAL = "serial"
@@ -71,6 +70,8 @@ class CHARGER_STATE(Enum):
     ABNORMAL = 0
     UNPLUGGED = 1
     STANDBY = 2
+    STARTING = 3
+    UNKNOWN = 4
     WAITING = 5
     CHARGING = 6
 

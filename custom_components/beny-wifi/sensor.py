@@ -72,4 +72,33 @@ class BenyWifiSensor(Entity):
             name=f"Beny Charger {self._device_id}",
             manufacturer = "ZJ Beny",
             model = self._device_model,
+            serial_number=self._device_id
         )
+
+    @property
+    def icon(self):
+        """Set sensor icons."""
+
+        if self.key == "state":
+            return "mdi:ev-station"
+
+        if self.key == "total_kwh":
+            return "mdi:power-plug-battery"
+
+        if self.key == "power":
+            return "mdi:ev-plug-type2"
+
+        if self._unit == "A":
+            return "mdi:sine-wave"
+
+        if self._unit == "V":
+            return "mdi:flash-triangle"
+
+        if self.key == "timer_start":
+            return "mdi:timer-sand-empty"
+
+        if self.key == "timer_end":
+            return "mdi:timer-sand-full"
+
+        return None
+

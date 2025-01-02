@@ -6,11 +6,19 @@ import socket
 from typing import Any
 
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util.dt import utcnow
 
 from .communication import build_message, read_message
-from .const import CLIENT_MESSAGE, DOMAIN, REQUEST_TYPE
+from .const import (
+    CHARGER_COMMAND,
+    CHARGER_STATE,
+    CLIENT_MESSAGE,
+    DOMAIN,
+    REQUEST_TYPE,
+    SERIAL,
+)
 from .conversions import get_hex
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,6 +43,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
         self.ip_address = ip_address
         self.port = port
+        self.hass = hass
 
     async def _async_update_data(self) -> dict[str, Any]:
         """Fetch data asynchronously."""
@@ -82,7 +91,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             data['state'] = data['state'].lower()
 
             data['power'] = float(data['power']) / 10
-            data['total_kwh'] = float(data['total_kwh']) / 10
+            data['total_kwh'] = float(data['total_kwh'])
             data['timer_start'] = start
             data['timer_end'] = end
 
@@ -105,3 +114,42 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         except Exception as err:  # noqa: BLE001
             _LOGGER.error(f"UDP request failed: {err}")  # noqa: G004
             raise UpdateFailed(f"Error sending UDP request: {err}")  # noqa: B904
+
+    async def async_toggle_charging(self, device_name: str, command: str):
+        """Start or stop charging service."""
+
+        # check if charger is unplugged
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
+
+        if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+            raise HomeAssistantError(f"{device_name}: Cannot {command} charging - charger unplugged")
+
+        if command == "start":
+            request = build_message(
+                CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
+                {"charger_command": get_hex(CHARGER_COMMAND.START.value)}
+            ).encode('ascii')
+        elif command == "stop":
+            request = build_message(
+                CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
+                {"charger_command": get_hex(CHARGER_COMMAND.STOP.value)}
+            ).encode('ascii')
+
+        self._send_udp_request(request)
+        _LOGGER.info(f"{device_name}: {command} charging command sent")  # noqa: G004
+
+        await asyncio.sleep(5)
+        await self._async_update_data()
+        await asyncio.sleep(5)
+        await self._async_update_data()
+
+    async def async_set_timer(self, device_name: str, start_time: str, end_time: str):
+        """Set charging timer."""
+
+        # check if charger is unplugged
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
+
+        if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+            raise HomeAssistantError(f"{device_name}: Cannot set timer - charger unplugged")

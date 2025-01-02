@@ -5,19 +5,10 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.device_registry import async_get as async_get_device_registry
 
-from .const import (
-    CONF_IP,
-    CONF_PORT,
-    COORDINATOR,
-    DOMAIN,
-    MODEL,
-    PLATFORMS,
-    SCAN_INTERVAL,
-    SERIAL,
-)
+from .const import CONF_IP, CONF_PORT, DOMAIN, PLATFORMS, SCAN_INTERVAL
 from .coordinator import BenyWifiUpdateCoordinator
+from .services import async_setup_services
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,19 +19,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     ip_address = entry.data[CONF_IP]
     port = entry.data[CONF_PORT]
     scan_interval = entry.data[SCAN_INTERVAL]
-
-    """
-    device_registry = async_get_device_registry(hass)
-
-    # Ensure a device is registered
-    device_registry.async_get_or_create(
-        config_entry_id=entry.entry_id,
-        identifiers={(DOMAIN, entry.data[SERIAL])},  # Unique identifier for the device
-        name=f"Beny Charger {entry.data[SERIAL]}",
-        manufacturer="ZJ Beny",
-        model=entry.data[MODEL]
-    )
-    """
 
     # Create the DataUpdateCoordinator
     coordinator = BenyWifiUpdateCoordinator(hass, ip_address, port, scan_interval)
@@ -55,12 +33,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Store the coordinator for use by platforms
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = {
-        COORDINATOR: coordinator,
+        "coordinator": coordinator,
     }
 
     # Forward entry setup to supported platforms
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
+    # setup services
+    await async_setup_services(hass)
     return True
 
 

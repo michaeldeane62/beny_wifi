@@ -1,0 +1,37 @@
+start_charging:
+  name: "Start Charging"
+  description: "Start charging."
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi
+
+stop_charging:
+  name: "Stop Charging"
+  description: "Stop charging."
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi
+
+set_timer:
+  name: "Set Timer"
+  description: "Sets charging timer."
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi
+    start_time:
+      required: true
+      selector: 
+        time:
+    end_time:
+      required: true
+      selector: 
+        time:

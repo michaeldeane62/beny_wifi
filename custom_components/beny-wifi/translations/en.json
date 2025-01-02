@@ -25,6 +25,46 @@
           "description": "Update the options for your Beny Wifi charger."
         }
       }
+    },
+    "services": {
+      "start_charging": {
+        "name": "Start charging",
+        "description": "Starts the charging process",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          }
+        }
+      },
+      "stop_charging": {
+        "name": "Stop charging",
+        "description": "Stops the charging process",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          }
+        }
+      },
+      "set_timer": {
+        "name": "Set timer",
+        "description": "Sets charging timer",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          },
+          "start_time": {
+            "name": "Start time",
+            "description": "Time to start charging"
+          },
+          "end_time": {
+            "name": "End time",
+            "description": "Time to end charging"
+          }
+        }
+      }
     }
   }
   
