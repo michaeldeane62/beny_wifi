@@ -6,7 +6,7 @@ from .const import (  # noqa: D100
     REQUEST_TYPE,
     SERVER_MESSAGE,
     calculate_checksum,
-    get_checksum,
+    validate_checksum,
 )
 from .conversions import (  # type: ignore  # noqa: PGH003
     get_ip,
@@ -27,7 +27,7 @@ def read_message(data) -> dict:
     """
 
     # check if checksum matches before trying to translate
-    if not get_checksum(data):
+    if not validate_checksum(data):
         return None
 
     # find out message type first

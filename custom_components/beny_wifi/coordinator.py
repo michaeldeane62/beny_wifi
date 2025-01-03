@@ -109,11 +109,12 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Receive response
             response, addr = sock.recvfrom(1024)
-            sock.close()
             return response  # noqa: TRY300
         except Exception as err:  # noqa: BLE001
             _LOGGER.error(f"UDP request failed: {err}")  # noqa: G004
             raise UpdateFailed(f"Error sending UDP request: {err}")  # noqa: B904
+        finally:
+            sock.close()
 
     async def async_toggle_charging(self, device_name: str, command: str):
         """Start or stop charging service."""

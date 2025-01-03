@@ -34,6 +34,8 @@ def calculate_checksum(data: str) -> int:
     # if there is a placeholder in command message, skip that one
     if "[checksum]" in data:
         data = data[:-len("[checksum]")]
+    else:
+        data = data[:-2]
 
     return sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)]) % 256
 
