@@ -2,16 +2,19 @@
     <img alt="beny-wifi" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/logo.png?raw=true">
 </div>
 
-# beny-wifi
+# Beny Wifi
 
-![Home Assistant](https://img.shields.io/badge/home%20assistant-%2341BDF5.svg?style=for-the-badge&logo=home-assistant&logoColor=white)
-
+<div align="left">
+    <img alt="Home Assistant" src="https://img.shields.io/badge/home%20assistant-%2341BDF5.svg"/>
+    <img alt="Local polling" src="https://img.shields.io/badge/IOT_class-Local_polling-blue">
+    <img alt="Static Badge" src="https://img.shields.io/badge/License-GPL_3.0-green">
+</div>
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
-This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers. 
+This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers via Wifi. 
 
-Integration mimics ZBox phone app's communication with charger. I have not mapped all parameters and commands yet. I think that any charger communicating with ZBox app should work.
+Integration mimics ZBox phone app's communication with charger. All parameters and commands are not mapped yet, but assumption is that any charger communicating using ZBox app should work with integration.
 
 ### Supported chargers
 
@@ -25,32 +28,32 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 
 ### Sensors
 
-Currently, integration contains sensor for charger with following parameters
+Currently, integration contains creates charger devices with following sensors:
 
-Value: 
-- Charger state (*standby | waiting | starting charging | charging | abnormal*)
-
-Attributes:
-- Current L1 *[A]*
-- Current L2 *[A]*
-- Current L3 *[A]*
-- Voltage L1 *[V]*
-- Voltage L2 *[V]*
-- Voltage L3 *[V]*
-- Power *[kW]*
-- Total energy *[kWh]*
-- Timer start time *[UTC timestamp]*
-- Timer end time *[UTC timestamp]*
+| Sensor             | Unit            | Description                                                                   |
+| ------------------ | --------------- | ----------------------------------------------------------------------------- |
+| state              | [charger state] | Charger state *(abnormal unplugged standby starting unknown waiting charging)*|
+| current1           | [A]             | Current L1                                                                    |
+| current2           | [A]             | Current L2                                                                    |
+| current3           | [A]             | Current L3                                                                    |
+| voltage1           | [V]             | Voltage L1                                                                    |
+| voltage2           | [V]             | Voltage L2                                                                    |
+| voltage3           | [V]             | Voltage L3                                                                    |
+| power              | [kW]            | Current power consumption                                                     |
+| total_energy       | [kWh]           | Session based charged capacity                                                |
+| timer_start        | [timestamp]     | Currently set timer start time                                                |
+| timer_end          | [timestamp]     | Currently set timer end time                                                  |
 
 ### Actions
 
 Currently integration supports following actions:
-- start charging
-- stop charging
-- set timer (*start time | end time*)
+- beny_wifi.start_charging (*device_id*)
+- beny_wifi.stop_charging (*device_id*)
+- beny_wifi.set_timer (*device_id | start time | end time*)
 
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
 - action to set max amps
 - map missing parameters as sensors (like outdoor temperature)
+- add integration to hacs
