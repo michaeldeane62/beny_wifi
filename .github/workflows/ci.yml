@@ -1,22 +1,48 @@
-import json
-import sys
+name: Tests
 
-def update_version(new_version):
-    # Load the manifest.json file
-    with open("manifest.json", "r") as file:
-        manifest = json.load(file)
+on:
+  push:
+    branches:
+      - main
 
-    # Update the version field
-    manifest["version"] = new_version
+jobs:
+  test-and-version:
+    runs-on: ubuntu-latest
 
-    # Write the updated manifest back to the file
-    with open("manifest.json", "w") as file:
-        json.dump(manifest, file, indent=4)
+    steps:
+    - name: Check out the code
+      uses: actions/checkout@v4
 
-if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print("Usage: python update_manifest_version.py <new_version>")
-        sys.exit(1)
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
 
-    new_version = sys.argv[1]
-    update_version(new_version)
+    - name: Extract version from commit message
+      id: extract_version
+      run: |
+        # Get the first line of the commit message
+        COMMIT_MSG=$(git log -1 --pretty=%B | head -n 1)
+        
+        # Extract version if the message starts with "Version"
+        if [[ $COMMIT_MSG =~ Version[[:space:]]([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+          VERSION=${BASH_REMATCH[1]}
+          echo "version=$VERSION" >> $GITHUB_ENV
+        else
+          echo "No valid version found in commit message."
+          exit 1
+        fi
+
+    - name: Update manifest.json with new version
+      run: |
+        # Update the version in manifest.json
+        python scripts/update_manifest_version.py "$version"
+
+    - name: Commit and push updated manifest.json
+      if: success()
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git add manifest.json
+        git commit -m "Update version in manifest.json to $version"
+        git push
