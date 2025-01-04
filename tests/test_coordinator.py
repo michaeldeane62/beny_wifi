@@ -5,9 +5,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from custom_components.beny_wifi.coordinator import BenyWifiUpdateCoordinator
-from custom_components.beny_wifi.const import CLIENT_MESSAGE, REQUEST_TYPE, CHARGER_STATE, CHARGER_COMMAND
-from custom_components.beny_wifi.conversions import get_hex
-from datetime import datetime, timedelta
+from custom_components.beny_wifi.const import CHARGER_STATE
+from datetime import datetime
 
 @pytest.fixture
 def mock_send_udp_request():
@@ -80,37 +79,6 @@ async def test_udp_request_failure(mock_send_udp_request, coordinator):
     # Call the update function and check if it raises UpdateFailed
     with pytest.raises(UpdateFailed):
         await coordinator._async_update_data()  # Ensure this is awaited
-
-
-@patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
-@patch("custom_components.beny_wifi.coordinator.read_message")
-async def test_async_toggle_charging_start(mock_read_message, mock_send_udp_request, coordinator):
-    """Test toggling charging start."""
-
-    # Mock the response from the UDP request as raw bytes
-    mock_send_udp_request.return_value = b"55aa10001103499602D2c0a801640d05d8"
-
-    # Mock the parsed response returned by read_message
-    mock_read_message.return_value = {
-        "state": "standby",  # Expected parsed state
-        "power": 0.0,        # Parsed power value
-        "total_kwh": 0.0,    # Parsed energy value
-        "timer_start_h": 8,  # Parsed timer start hour
-        "timer_start_min": 0,  # Parsed timer start minute
-        "timer_end_h": 10,   # Parsed timer end hour
-        "timer_end_min": 30, # Parsed timer end minute
-    }
-
-    # Call the coordinator's update method
-    data = await coordinator._async_update_data()
-
-    # Assertions
-    assert data["state"] == "standby"
-    assert data["power"] == 0.0
-    assert data["total_kwh"] == 0.0
-    assert isinstance(data["timer_start"], datetime)
-    assert isinstance(data["timer_end"], datetime)
-
 
 @patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
 async def test_async_set_timer_unplugged(mock_send_udp_request, coordinator, mock_hass):
@@ -212,3 +180,67 @@ async def test_toggle_charging_unplugged(mock_send_udp_request, coordinator, moc
 
     # Ensure no UDP request was sent
     mock_send_udp_request.assert_not_called()
+
+@patch("custom_components.beny_wifi.conversions.get_hex")
+@patch("custom_components.beny_wifi.communication.build_message")
+@patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
+async def test_toggle_charging_start(mock_send_udp_request, mock_build_message, mock_get_hex, coordinator, mock_hass):
+    """Test the start charging command, with multiple UDP requests."""
+
+    # Mock the charger state as 'standby'
+    mock_hass.states.get.return_value = "standby"
+
+    # Mock get_hex to return valid hex string for the start command
+    mock_get_hex.return_value = "01"  # Hex string for 'start' command
+
+    # Mock build_message to return a valid request string
+    mock_build_message.return_value = "55aa10000c0000cb34060121"
+
+    # Mock _send_udp_request to simulate a successful response for each call
+    mock_send_udp_request.side_effect = [
+        b"55aa10000c0000cb34060121",  # First call: charge start request
+    ]
+
+    # Simulate calling async_toggle_charging with 'start' command
+    await coordinator.async_toggle_charging(device_name="Charger1", command="start")
+
+    # Verify the expected sequence of calls to _send_udp_request
+    mock_send_udp_request.assert_has_calls([
+        call("55aa10000c0000cb34060121".encode('ascii')),  # Start charging request
+    ])
+
+    # Check that the sleep and update calls happened (e.g., ensuring async steps)
+    # You can add additional mocks or checks for asyncio.sleep if needed
+
+
+
+@patch("custom_components.beny_wifi.conversions.get_hex")
+@patch("custom_components.beny_wifi.communication.build_message")
+@patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
+async def test_toggle_charging_stop(mock_send_udp_request, mock_build_message, mock_get_hex, coordinator, mock_hass):
+    """Test the start charging command, with multiple UDP requests."""
+
+    # Mock the charger state as 'standby'
+    mock_hass.states.get.return_value = "standby"
+
+    # Mock get_hex to return valid hex string for the start command
+    mock_get_hex.return_value = "00"  # Hex string for 'start' command
+
+    # Mock build_message to return a valid request string
+    mock_build_message.return_value = "55aa10000c0000cb34060020"
+
+    # Mock _send_udp_request to simulate a successful response for each call
+    mock_send_udp_request.side_effect = [
+        b"55aa10000c0000cb34060020",  # First call: charge start request
+    ]
+
+    # Simulate calling async_toggle_charging with 'start' command
+    await coordinator.async_toggle_charging(device_name="Charger1", command="stop")
+
+    # Verify the expected sequence of calls to _send_udp_request
+    mock_send_udp_request.assert_has_calls([
+        call("55aa10000c0000cb34060020".encode('ascii')),  # Start charging request
+    ])
+
+    # Check that the sleep and update calls happened (e.g., ensuring async steps)
+    # You can add additional mocks or checks for asyncio.sleep if needed

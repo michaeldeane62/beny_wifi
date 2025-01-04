@@ -140,11 +140,6 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         self._send_udp_request(request)
         _LOGGER.info(f"{device_name}: {command} charging command sent")  # noqa: G004
 
-        await asyncio.sleep(5)
-        await self._async_update_data()
-        await asyncio.sleep(5)
-        await self._async_update_data()
-
     async def async_set_timer(self, device_name: str, start_time: str, end_time: str):
         """Set charging timer."""
 

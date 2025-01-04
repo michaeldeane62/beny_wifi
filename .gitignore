@@ -4,3 +4,4 @@ hacs.json
 requirements.test.txt
 setup.cfg
 venv
+tests/__pycache__/*
