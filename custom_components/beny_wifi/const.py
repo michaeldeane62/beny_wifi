@@ -8,7 +8,6 @@ PLATFORMS: Final = [Platform.SENSOR]
 
 NAME: Final = "Beny Wifi"
 DOMAIN: Final = "beny_wifi"
-VERSION = "0.0.1"
 MODEL = "model"
 SERIAL = "serial"
 
