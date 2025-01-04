@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import MagicMock, AsyncMock
-from homeassistant.helpers.entity import DeviceInfo
 from custom_components.beny_wifi.sensor import BenyWifiSensor
 from custom_components.beny_wifi.const import DOMAIN
 from custom_components.beny_wifi.sensor import async_setup_entry

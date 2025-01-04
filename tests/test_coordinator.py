@@ -4,7 +4,6 @@ from unittest.mock import patch, MagicMock, AsyncMock, call
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from custom_components.beny_wifi.coordinator import BenyWifiUpdateCoordinator
-from custom_components.beny_wifi.const import CHARGER_STATE, CLIENT_MESSAGE
 from datetime import datetime
 
 @pytest.fixture
