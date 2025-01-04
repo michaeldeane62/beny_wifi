@@ -8,8 +8,9 @@
     <img alt="Home Assistant" src="https://img.shields.io/badge/home%20assistant-%2341BDF5.svg"/>
     <img alt="Local polling" src="https://img.shields.io/badge/IOT_class-Local_polling-blue">
     <img alt="Static Badge" src="https://img.shields.io/badge/License-GPL_3.0-green">
-    [![.github/workflows/ci.yml](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml)
 </div>
+
+[![.github/workflows/ci.yml](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml)
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
