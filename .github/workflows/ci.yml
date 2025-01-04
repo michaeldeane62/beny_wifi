@@ -1,8 +1,9 @@
 name: Tests
+
 on:
   push:
     branches:
-      - main
+      - dev  # or another branch for your development workflow
 
 jobs:
   test-and-version:
@@ -32,7 +33,12 @@ jobs:
           exit 1
         fi
 
+    - name: Run tests
+      run: |
+        pytest tests/
+
     - name: Update manifest.json with new version
+      if: success()
       run: |
         # Update the version in manifest.json
         python scripts/update_manifest_version.py "$version"
@@ -45,3 +51,11 @@ jobs:
         git add manifest.json
         git commit -m "Update version in manifest.json to $version"
         git push
+
+    - name: Merge to main branch
+      if: success()
+      run: |
+        # Check out main branch and merge changes from the current branch
+        git checkout main
+        git merge dev --no-ff -m "Merge dev into main after version update"
+        git push origin main

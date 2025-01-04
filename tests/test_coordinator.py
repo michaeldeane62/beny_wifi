@@ -234,7 +234,7 @@ async def test_async_set_timer(coordinator):
     device_name = "Test Charger"
     start_time = "08:00"
     end_time = "10:00"
-    state_sensor_id = "sensor.some_serial_status"
+    state_sensor_id = "sensor.some_serial_state"
     state_sensor_value = "charging"
     coordinator.hass.states.get.return_value = state_sensor_value
 
@@ -266,7 +266,7 @@ async def test_async_reset_timer(coordinator):
 
     # Mock state sensor in Home Assistant
     device_name = "Test Charger"
-    state_sensor_id = "sensor.some_serial_status"
+    state_sensor_id = "sensor.some_serial_state"
     state_sensor_value = "charging"
     coordinator.hass.states.get.return_value = state_sensor_value
 
