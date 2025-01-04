@@ -35,3 +35,13 @@ set_timer:
       required: true
       selector: 
         time:
+
+reset_timer:
+  name: "Reset Timer"
+  description: "Resets charging timer."
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi

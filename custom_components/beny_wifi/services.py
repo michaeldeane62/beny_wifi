@@ -46,10 +46,22 @@ async def async_setup_services(hass: HomeAssistant) -> bool:
         else:
             _LOGGER.error(f"Device id {call.data[ATTR_DEVICE_ID]} not found")  # noqa: G004
 
+    async def async_handle_reset_timer(call: ServiceCall):
+        """Reset charging timer."""
+
+        coordinator: BenyWifiUpdateCoordinator = _get_coordinator_from_device(hass, call)["coordinator"]
+        if coordinator:
+            device_name = _get_device_name(hass, call.data[ATTR_DEVICE_ID])
+            await coordinator.async_reset_timer(device_name)
+        else:
+            _LOGGER.error(f"Device id {call.data[ATTR_DEVICE_ID]} not found")  # noqa: G004
+
+
     services = {
         "start_charging": async_handle_start_charging,
         "stop_charging": async_handle_stop_charging,
-        "set_timer": async_handle_set_timer
+        "set_timer": async_handle_set_timer,
+        "reset_timer": async_handle_reset_timer
     }
 
     for _name, _service in services.items():

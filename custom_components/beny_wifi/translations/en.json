@@ -64,6 +64,16 @@
             "description": "Time to end charging"
           }
         }
+      },
+      "reset_timer": {
+        "name": "Reset timer",
+        "description": "Resets charging timer",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          }
+        }
       }
     }
   }

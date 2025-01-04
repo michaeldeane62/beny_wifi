@@ -19,7 +19,7 @@ from .const import (
     REQUEST_TYPE,
     SERIAL,
 )
-from .conversions import get_hex
+from .conversions import convert_timer, get_hex
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -120,11 +120,11 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Start or stop charging service."""
 
         # check if charger is unplugged
-        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
-        state_sensor_value = self.hass.states.get(state_sensor_id)
+        #state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
+        #state_sensor_value = self.hass.states.get(state_sensor_id)
 
-        if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
-            raise HomeAssistantError(f"{device_name}: Cannot {command} charging - charger unplugged")
+        #if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+        #    raise HomeAssistantError(f"{device_name}: Cannot {command} charging - charger unplugged")
 
         if command == "start":
             request = build_message(
@@ -144,8 +144,26 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Set charging timer."""
 
         # check if charger is unplugged
-        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
-        state_sensor_value = self.hass.states.get(state_sensor_id)
+        #state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
+        #state_sensor_value = self.hass.states.get(state_sensor_id)
 
-        if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
-            raise HomeAssistantError(f"{device_name}: Cannot set timer - charger unplugged")
+        #if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+        #    raise HomeAssistantError(f"{device_name}: Cannot set timer - charger unplugged")
+
+        request = build_message(CLIENT_MESSAGE.SET_TIMER, convert_timer(start_time, end_time)).encode('ascii')
+        self._send_udp_request(request)
+        _LOGGER.info(f"{device_name}: charging timer set")  # noqa: G004
+
+    async def async_reset_timer(self, device_name: str):
+        """Reset charging timer."""
+
+        # check if charger is unplugged
+        #state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
+        #state_sensor_value = self.hass.states.get(state_sensor_id)
+
+        #if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+        #    raise HomeAssistantError(f"{device_name}: Cannot reset timer - charger unplugged")
+
+        request = build_message(CLIENT_MESSAGE.RESET_TIMER).encode('ascii')
+        self._send_udp_request(request)
+        _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004
