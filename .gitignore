@@ -5,3 +5,4 @@ requirements.test.txt
 setup.cfg
 venv
 tests/__pycache__/*
+tests/old/*

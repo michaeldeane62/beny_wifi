@@ -120,50 +120,44 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Start or stop charging service."""
 
         # check if charger is unplugged
-        #state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
-        #state_sensor_value = self.hass.states.get(state_sensor_id)
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
 
-        #if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
-        #    raise HomeAssistantError(f"{device_name}: Cannot {command} charging - charger unplugged")
+        if state_sensor_value and not state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+            if command == "start":
+                request = build_message(
+                    CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
+                    {"charger_command": get_hex(CHARGER_COMMAND.START.value)}
+                ).encode('ascii')
+            elif command == "stop":
+                request = build_message(
+                    CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
+                    {"charger_command": get_hex(CHARGER_COMMAND.STOP.value)}
+                ).encode('ascii')
 
-        if command == "start":
-            request = build_message(
-                CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
-                {"charger_command": get_hex(CHARGER_COMMAND.START.value)}
-            ).encode('ascii')
-        elif command == "stop":
-            request = build_message(
-                CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
-                {"charger_command": get_hex(CHARGER_COMMAND.STOP.value)}
-            ).encode('ascii')
-
-        self._send_udp_request(request)
-        _LOGGER.info(f"{device_name}: {command} charging command sent")  # noqa: G004
+            self._send_udp_request(request)
+            _LOGGER.info(f"{device_name}: {command} charging command sent")  # noqa: G004
 
     async def async_set_timer(self, device_name: str, start_time: str, end_time: str):
         """Set charging timer."""
 
-        # check if charger is unplugged
-        #state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
-        #state_sensor_value = self.hass.states.get(state_sensor_id)
+        # check if charger is not unplugged
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
 
-        #if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
-        #    raise HomeAssistantError(f"{device_name}: Cannot set timer - charger unplugged")
-
-        request = build_message(CLIENT_MESSAGE.SET_TIMER, convert_timer(start_time, end_time)).encode('ascii')
-        self._send_udp_request(request)
-        _LOGGER.info(f"{device_name}: charging timer set")  # noqa: G004
+        if state_sensor_value and not state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+            request = build_message(CLIENT_MESSAGE.SET_TIMER, convert_timer(start_time, end_time)).encode('ascii')
+            self._send_udp_request(request)
+            _LOGGER.info(f"{device_name}: charging timer set")  # noqa: G004
 
     async def async_reset_timer(self, device_name: str):
         """Reset charging timer."""
 
-        # check if charger is unplugged
-        #state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
-        #state_sensor_value = self.hass.states.get(state_sensor_id)
+        # check if charger is not unplugged
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_status"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
 
-        #if not state_sensor_value or state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
-        #    raise HomeAssistantError(f"{device_name}: Cannot reset timer - charger unplugged")
-
-        request = build_message(CLIENT_MESSAGE.RESET_TIMER).encode('ascii')
-        self._send_udp_request(request)
-        _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004
+        if state_sensor_value and not state_sensor_value == CHARGER_STATE.UNPLUGGED.name.lower():
+            request = build_message(CLIENT_MESSAGE.RESET_TIMER).encode('ascii')
+            self._send_udp_request(request)
+            _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004

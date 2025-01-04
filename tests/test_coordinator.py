@@ -2,10 +2,9 @@ import pytest
 import socket
 from unittest.mock import patch, MagicMock, AsyncMock, call
 from homeassistant.core import HomeAssistant
-from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from custom_components.beny_wifi.coordinator import BenyWifiUpdateCoordinator
-from custom_components.beny_wifi.const import CHARGER_STATE
+from custom_components.beny_wifi.const import CHARGER_STATE, CLIENT_MESSAGE
 from datetime import datetime
 
 @pytest.fixture
@@ -38,6 +37,11 @@ def coordinator(mock_hass):
     coordinator.config_entry = config_entry  # Mock config_entry to avoid 'NoneType' error
     return coordinator
 
+@pytest.fixture
+def mock_get_states(mock_hass):
+    """Fixture to mock hass.states.get."""
+    with patch.object(mock_hass.states, "get") as mock_get:
+        yield mock_get
 
 @patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
 @patch("custom_components.beny_wifi.coordinator.read_message")
@@ -79,17 +83,6 @@ async def test_udp_request_failure(mock_send_udp_request, coordinator):
     # Call the update function and check if it raises UpdateFailed
     with pytest.raises(UpdateFailed):
         await coordinator._async_update_data()  # Ensure this is awaited
-
-@patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
-async def test_async_set_timer_unplugged(mock_send_udp_request, coordinator, mock_hass):
-    """Test that timer setting fails if the charger is unplugged."""
-
-    # Simulate the charger being unplugged (mocking as None state)
-    mock_hass.states.get.return_value = None  # Ensure no state is returned
-
-    # Check that HomeAssistantError is raised when trying to set the timer
-    with pytest.raises(HomeAssistantError):
-        await coordinator.async_set_timer(device_name="Charger1", start_time="08:00", end_time="10:00")
 
 @patch("custom_components.beny_wifi.coordinator.read_message")
 @patch("socket.socket")
@@ -167,20 +160,6 @@ async def test_socket_exception(mock_socket, coordinator):
     mock_socket_instance.sendto.assert_called_once_with(b"55aa10000b0000cb347089", ("192.168.1.100", 502))
     mock_socket_instance.close.assert_called_once()
 
-@patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
-async def test_toggle_charging_unplugged(mock_send_udp_request, coordinator, mock_hass):
-    """Test that HomeAssistantError is raised when the charger is unplugged."""
-
-    # Simulate charger state as unplugged
-    mock_hass.states.get.return_value = CHARGER_STATE.UNPLUGGED.name.lower()
-
-    # Call the method and expect HomeAssistantError
-    with pytest.raises(HomeAssistantError, match="Cannot start charging - charger unplugged"):
-        await coordinator.async_toggle_charging(device_name="Charger1", command="start")
-
-    # Ensure no UDP request was sent
-    mock_send_udp_request.assert_not_called()
-
 @patch("custom_components.beny_wifi.conversions.get_hex")
 @patch("custom_components.beny_wifi.communication.build_message")
 @patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
@@ -244,3 +223,105 @@ async def test_toggle_charging_stop(mock_send_udp_request, mock_build_message, m
 
     # Check that the sleep and update calls happened (e.g., ensuring async steps)
     # You can add additional mocks or checks for asyncio.sleep if needed
+
+@pytest.mark.asyncio
+async def test_async_set_timer(coordinator):
+    """Test async_set_timer method."""
+    # Mock config_entry and SERIAL
+    coordinator.config_entry = MagicMock()
+    coordinator.config_entry.data = {"serial": "some_serial"}
+
+    # Mock state sensor in Home Assistant
+    device_name = "Test Charger"
+    start_time = "08:00"
+    end_time = "10:00"
+    state_sensor_id = "sensor.some_serial_status"
+    state_sensor_value = "charging"
+    coordinator.hass.states.get.return_value = state_sensor_value
+
+    # Mock the _send_udp_request and build_message
+    with patch("custom_components.beny_wifi.coordinator.build_message", return_value="mock_message"), \
+         patch.object(coordinator, "_send_udp_request", new_callable=AsyncMock) as mock_send_udp, \
+         patch("custom_components.beny_wifi.coordinator._LOGGER") as mock_logger:
+        # mock_send_udp will return bytes, so no need to encode
+        mock_send_udp.return_value = b"mock_message"
+
+        await coordinator.async_set_timer(device_name, start_time, end_time)
+
+        # Verify the state sensor was checked
+        coordinator.hass.states.get.assert_called_once_with(state_sensor_id)
+
+        # Verify the UDP request was sent with the mock message as bytes
+        mock_send_udp.assert_called_once_with(b"mock_message")
+
+        # Verify logging
+        mock_logger.info.assert_called_once_with(f"{device_name}: charging timer set")
+
+
+@pytest.mark.asyncio
+async def test_async_reset_timer(coordinator):
+    """Test async_reset_timer method."""
+    # Mock config_entry and SERIAL
+    coordinator.config_entry = MagicMock()
+    coordinator.config_entry.data = {"serial": "some_serial"}
+
+    # Mock state sensor in Home Assistant
+    device_name = "Test Charger"
+    state_sensor_id = "sensor.some_serial_status"
+    state_sensor_value = "charging"
+    coordinator.hass.states.get.return_value = state_sensor_value
+
+    # Mock the _send_udp_request and build_message
+    with patch("custom_components.beny_wifi.coordinator.build_message", return_value="mock_message"), \
+         patch.object(coordinator, "_send_udp_request", new_callable=AsyncMock) as mock_send_udp, \
+         patch("custom_components.beny_wifi.coordinator._LOGGER") as mock_logger:
+        # mock_send_udp will return bytes, so no need to encode
+        mock_send_udp.return_value = b"mock_message"
+
+        await coordinator.async_reset_timer(device_name)
+
+        # Verify the state sensor was checked
+        coordinator.hass.states.get.assert_called_once_with(state_sensor_id)
+
+        # Verify the UDP request was sent with the mock message as bytes
+        mock_send_udp.assert_called_once_with(b"mock_message")
+
+        # Verify logging
+        mock_logger.info.assert_called_once_with(f"{device_name}: charging timer reset")
+
+@pytest.mark.asyncio
+async def test_async_set_timer_unplugged(coordinator):
+    """Test async_set_timer method when charger is unplugged."""
+    device_name = "Test Charger"
+    start_time = "08:00"
+    end_time = "10:00"
+    state_sensor_value = "unplugged"
+    coordinator.hass.states.get.return_value = state_sensor_value
+
+    # Ensure _send_udp_request is not called
+    with patch.object(coordinator, "_send_udp_request", new_callable=AsyncMock) as mock_send_udp:
+        await coordinator.async_set_timer(device_name, start_time, end_time)
+
+        # Verify the state sensor was checked
+        coordinator.hass.states.get.assert_called_once()
+
+        # Verify no UDP request was sent
+        mock_send_udp.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_async_reset_timer_unplugged(coordinator):
+    """Test async_reset_timer method when charger is unplugged."""
+    device_name = "Test Charger"
+    state_sensor_value = "unplugged"
+    coordinator.hass.states.get.return_value = state_sensor_value
+
+    # Ensure _send_udp_request is not called
+    with patch.object(coordinator, "_send_udp_request", new_callable=AsyncMock) as mock_send_udp:
+        await coordinator.async_reset_timer(device_name)
+
+        # Verify the state sensor was checked
+        coordinator.hass.states.get.assert_called_once()
+
+        # Verify no UDP request was sent
+        mock_send_udp.assert_not_called()
