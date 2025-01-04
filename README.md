@@ -10,6 +10,8 @@
     <img alt="Static Badge" src="https://img.shields.io/badge/License-GPL_3.0-green">
 </div>
 
+[![Tests](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml)
+
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
 This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers via Wifi. 
@@ -25,6 +27,23 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 | Model              | Firmware version |       Status      |
 | ------------------ | ---------------- | ----------------- |
 | BCP-AT1N-L         | 1.26             |:white_check_mark: |
+
+### Installation
+
+## Using HACS
+- Click three dots in the upper right corner of HACS.
+- From the menu, select Custom Repositories
+- Paste link to this repository to Repository field
+- Select "integration" to Type field
+- Find Beny Wifi from the list of integrations
+- Restart Home Assistant
+
+## Manually
+- Copy custom_components/beny_wifi folder of this repository as config/custom_components/beny_wifi folder in Home Assistant
+
+## Configuration
+- Find Beny Wifi integration under Settings > Devices & services
+- Insert charger IP address. Related on model, port may have to be changed. Also scan interval of the sensors can be configured
 
 ### Sensors
 
@@ -50,6 +69,7 @@ Currently integration supports following actions:
 - beny_wifi.start_charging (*device_id*)
 - beny_wifi.stop_charging (*device_id*)
 - beny_wifi.set_timer (*device_id | start time | end time*)
+- beny_wifi.reset_timer (*device_id*)
 
 ### Roadmap
 
