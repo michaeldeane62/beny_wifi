@@ -75,5 +75,6 @@ Currently integration supports following actions:
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
 - action to set max amps
+- action to set weekly schedule
 - map missing parameters as sensors (like outdoor temperature)
 - add integration to hacs
