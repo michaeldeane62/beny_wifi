@@ -20,7 +20,7 @@ Integration mimics ZBox phone app's communication with charger. All parameters a
 
 ### Supported chargers
 
-I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have one and you're willing to test the compatibility, please share your results and we'll add the model to supported devices :pray: 
+I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have one and you're willing to test the compatibility, please share your results and I will add the model to supported devices :pray: 
 
 ### Confirmed to work with models
 
