@@ -21,6 +21,8 @@ RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
 # Install pip for Python 3.13
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
 
+RUN pip install setuptools --upgrade
+
 # Install pytest, Home Assistant, and pytest-homeassistant-custom-component
 RUN pip install pytest homeassistant pytest-homeassistant-custom-component
 
