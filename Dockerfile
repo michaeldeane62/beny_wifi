@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y \
     && apt-get install -y python3.13 python3.13-dev
 
 # Set Python 3.13 as the default Python version
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
+#RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
 
 # Install pip for Python 3.13
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
