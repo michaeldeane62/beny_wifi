@@ -1,6 +1,8 @@
 # Use a base Ubuntu image
 FROM ubuntu:22.04
 
+RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt-get -y install tzdata
+
 # Install dependencies
 RUN apt-get update && apt-get install -y \
     software-properties-common \
