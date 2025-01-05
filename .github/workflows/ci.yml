@@ -18,7 +18,7 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Set up Python environment
+    - name: Run tests
       run: |
         python -m venv venv
         source venv/bin/activate
@@ -26,9 +26,6 @@ jobs:
         pip install homeassistant
         pip install pytest pytest-homeassistant-custom-component
         #pip install -r requirements.txt  # If your integration has additional dependencies
-
-    - name: Run tests
-      run: |
         pytest tests/
         continue-on-error: false  # Ensures workflow stops if tests fail
 
