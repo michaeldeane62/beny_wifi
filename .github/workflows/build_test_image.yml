@@ -26,4 +26,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/python-3.13-custom:latest
+          tags: ghcr.io/${{ github.repository_owner }}/pytest-image:latest
