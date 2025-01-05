@@ -33,10 +33,19 @@ jobs:
           exit 1
         fi
 
+    - name: Set up Python environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        pip install --upgrade pip
+        pip install homeassistant
+        pip install pytest pytest-homeassistant-custom-component
+        #pip install -r requirements.txt  # If your integration has additional dependencies
+
     - name: Run tests
       run: |
-        pip install pytest
         pytest tests/
+        continue-on-error: false  # Ensures workflow stops if tests fail
 
     - name: Update manifest.json with new version
       if: success()
