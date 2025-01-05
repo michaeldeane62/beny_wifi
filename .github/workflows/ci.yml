@@ -35,6 +35,7 @@ jobs:
 
     - name: Run tests
       run: |
+        pip install pytest
         pytest tests/
 
     - name: Update manifest.json with new version

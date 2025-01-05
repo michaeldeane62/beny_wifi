@@ -30,7 +30,7 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 
 ### Installation
 
-## Using HACS
+**Using HACS**
 - Click three dots in the upper right corner of HACS.
 - From the menu, select Custom Repositories
 - Paste link to this repository to Repository field
@@ -38,10 +38,10 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 - Find Beny Wifi from the list of integrations
 - Restart Home Assistant
 
-## Manually
+**Manually**
 - Copy custom_components/beny_wifi folder of this repository as config/custom_components/beny_wifi folder in Home Assistant
 
-## Configuration
+**Configuration**
 - Find Beny Wifi integration under Settings > Devices & services
 - Insert charger IP address. Related on model, port may have to be changed. Also scan interval of the sensors can be configured
 
