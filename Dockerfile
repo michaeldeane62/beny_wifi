@@ -1,7 +1,8 @@
 # Use a base Ubuntu image
 FROM ubuntu:22.04
 
-RUN TZ=Etc/UTC apt-get -y install tzdata
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=Etc/UTC
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
