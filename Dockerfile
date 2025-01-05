@@ -17,5 +17,6 @@ RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
 RUN pip install pytest homeassistant pytest-homeassistant-custom-component
 
 WORKDIR /app
+# test
 
 CMD ["python", "--version"]
