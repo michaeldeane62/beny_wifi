@@ -1,21 +1,29 @@
-FROM ubuntu:22.04
+name: Build test image
 
-RUN apt-get update && apt-get install -y \
-    software-properties-common \
-    build-essential \
-    curl \
-    python3.13 \
-    python3.13-distutils \
-    python3-pip \
-    && add-apt-repository ppa:deadsnakes/ppa \
-    && apt-get update
+on:
+  push:
+    paths:
+      - Dockerfile
+      - .github/workflows/build-ghcr-image.yml
 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 1
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
 
-RUN pip install pytest homeassistant pytest-homeassistant-custom-component
+      - name: GHCR login
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-WORKDIR /app
-
-CMD ["python", "--version"]
+      - name: Build image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/python-3.13-custom:latest
