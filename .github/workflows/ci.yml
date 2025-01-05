@@ -18,21 +18,6 @@ jobs:
       with:
         python-version: "3.10"
 
-    - name: Extract version from commit message
-      id: extract_version
-      run: |
-        # Get the first line of the commit message
-        COMMIT_MSG=$(git log -1 --pretty=%B | head -n 1)
-        
-        # Extract version if the message starts with "Version"
-        if [[ $COMMIT_MSG =~ Version[[:space:]]([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-          VERSION=${BASH_REMATCH[1]}
-          echo "version=$VERSION" >> $GITHUB_ENV
-        else
-          echo "No valid version found in commit message."
-          exit 1
-        fi
-
     - name: Set up Python environment
       run: |
         python -m venv venv
