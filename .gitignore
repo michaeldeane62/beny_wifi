@@ -1,7 +1,12 @@
 custom_components/beny_wifi/__pycache__/*
+<<<<<<< HEAD
 tests/*
+=======
+>>>>>>> dev
 .pre-commit-config.yaml
 hacs.json
 requirements.test.txt
 setup.cfg
 venv
+tests/__pycache__/*
+tests/old/*
