@@ -10,8 +10,6 @@
     <img alt="Static Badge" src="https://img.shields.io/badge/License-GPL_3.0-green">
 </div>
 
-[![Tests](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Jarauvi/beny_wifi/actions/workflows/ci.yml)
-
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
 This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers via Wifi. 
