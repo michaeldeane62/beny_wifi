@@ -5,6 +5,7 @@ from .const import (  # noqa: D100
     COMMON,
     REQUEST_TYPE,
     SERVER_MESSAGE,
+    TIMER_STATE,
     calculate_checksum,
     validate_checksum,
 )
@@ -41,14 +42,17 @@ def read_message(data) -> dict:
     # server sends values like voltages, currents etc.
     if msg_type == SERVER_MESSAGE.SEND_VALUES:
         for param, pos in msg_type.value["structure"].items():
+            value = int(data[pos], 16)
             if param == "state":
-                msg[param] = CHARGER_STATE(int(data[pos], 16)).name
+                msg[param] = CHARGER_STATE(value).name
+            elif param == "timer_state":
+                msg[param] = TIMER_STATE(value).name
             elif param == "total_kwh":
-                msg[param] = float(int(data[pos], 16)) / 10
+                msg[param] = float(value) / 10
             elif param == "request_type":
-                msg[param] = REQUEST_TYPE(int(data[pos], 16)).name
+                msg[param] = REQUEST_TYPE(value).name
             else:
-                msg[param] = int(data[pos], 16)
+                msg[param] = value
 
     # server sends charger model
     if msg_type == SERVER_MESSAGE.SEND_MODEL:

@@ -6,6 +6,7 @@ import socket
 from typing import Any
 
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util.dt import utcnow
 
@@ -65,34 +66,45 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             response = response.decode('ascii')
             data = read_message(response)
 
-            # Convert timer values to timestamps
-            now = utcnow()
-            start = now.replace(
-                hour=data['timer_start_h'], minute=data['timer_start_min'], second=0, microsecond=0
-            )
-            end = now.replace(
-                hour=data['timer_end_h'], minute=data['timer_end_min'], second=0, microsecond=0
-            )
+            # Set unset state to both start and end time if timer is not set at all
+            if data['timer_state'] == 'UNSET':
+                unset = await self.get_translated_state(self.hass, "start_time", "time_unset")
+                start = unset
+                end = unset
+            else:
+                # Convert timer values to timestamps
+                now = utcnow()
+                start = now.replace(
+                    hour=data['timer_start_h'], minute=data['timer_start_min'], second=0, microsecond=0
+                )
 
-            # Adjust for logic:
-            # If start is before current time, move it to the next day
-            if start < now:
-                start += timedelta(days=1)
+                # If start is before current time, move it to the next day
+                if start < now:
+                    start += timedelta(days=1)
 
-            # If end is before current time, move it to the next day
-            if end < now:
-                end += timedelta(days=1)
+                if data['timer_state'] == 'START_END_TIME':
+                    end = now.replace(
+                        hour=data['timer_end_h'], minute=data['timer_end_min'], second=0, microsecond=0
+                    )
 
-            # If end is before start, move end to the next day of start
-            if end <= start:
-                end += timedelta(days=1)
+                    # If end is before current time, move it to the next day
+                    if end < now:
+                        end += timedelta(days=1)
+
+                    # If end is also before start, move end to the next day of start
+                    if end <= start:
+                        end += timedelta(days=1)
+                else:
+                    # timer end is not set
+                    end = self.get_translated_state(self.hass, "start_time", "time_unset")
+
+            data['timer_start'] = start
+            data['timer_end'] = end
 
             data['state'] = data['state'].lower()
 
             data['power'] = float(data['power']) / 10
             data['total_kwh'] = float(data['total_kwh'])
-            data['timer_start'] = start
-            data['timer_end'] = end
 
             return data  # noqa: TRY300
         except Exception as err:  # noqa: BLE001
@@ -160,3 +172,14 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             request = build_message(CLIENT_MESSAGE.RESET_TIMER).encode('ascii')
             self._send_udp_request(request)
             _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004
+
+    async def get_translated_state(self, state_key, state_value, language="en"):
+        "Get translated states for sensors."
+
+        user_language = self.hass.config.language
+
+        # Retrieve translations for the specified language
+        translations = await async_get_translations(self.hass, user_language, category="state")
+
+        # Lookup the translation
+        return translations.get(f"component.custom_component.state.{state_key}.{state_value}", state_value)

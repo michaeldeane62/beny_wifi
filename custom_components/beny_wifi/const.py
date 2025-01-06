@@ -76,6 +76,13 @@ class CHARGER_STATE(Enum):
     WAITING = 5
     CHARGING = 6
 
+class TIMER_STATE(Enum):
+    """Timer states."""
+
+    UNSET = 0
+    START_TIME = 1
+    START_END_TIME = 3
+
 class CHARGER_COMMAND(Enum):
     """Charger commands."""
 
@@ -176,6 +183,7 @@ class SERVER_MESSAGE(Enum):
             "power": slice(30, 34),
             "total_kwh": slice(34, 38),
             "state": slice(40, 42),
+            "timer_state": slice(42, 44),
             "max_current": slice(56, 58),
             "timer_start_h": slice(44, 46),
             "timer_start_min": slice(46, 48),

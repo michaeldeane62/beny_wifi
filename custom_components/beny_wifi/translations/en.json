@@ -1,5 +1,8 @@
 {
     "title": "Beny Wifi",
+    "state": {
+      "UNSET_TIMER_VALUE": "Unset"
+    },
     "config": {
       "step": {
         "user": {
