@@ -4,7 +4,6 @@ tests/*
 =======
 >>>>>>> dev
 .pre-commit-config.yaml
-hacs.json
 requirements.test.txt
 setup.cfg
 venv
