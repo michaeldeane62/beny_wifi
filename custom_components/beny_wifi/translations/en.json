@@ -1,10 +1,7 @@
 {
     "title": "Beny Wifi",
     "state": {
-      "start_time": {
-        "time_unset": "Unset"
-      },
-      "end_time": {
+      "timer": {
         "time_unset": "Unset"
       }
     },

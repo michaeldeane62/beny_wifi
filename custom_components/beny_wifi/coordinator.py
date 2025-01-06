@@ -68,7 +68,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Set unset state to both start and end time if timer is not set at all
             if data['timer_state'] == 'UNSET':
-                unset = await self.get_translated_state("start_time", "time_unset")
+                unset = await self.get_translated_state("timer", "time_unset")
                 start = unset
                 end = unset
             else:
@@ -96,7 +96,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         end += timedelta(days=1)
                 else:
                     # timer end is not set
-                    end = self.get_translated_state("start_time", "time_unset")
+                    end = self.get_translated_state("timer", "time_unset")
 
             data['timer_start'] = start
             data['timer_end'] = end
@@ -182,4 +182,4 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         translations = await async_get_translations(self.hass, user_language, category="state")
 
         # Lookup the translation
-        return translations.get(f"component.custom_component.state.{state_key}.{state_value}", state_value)
+        return translations.get(f"component.beny_wifi.state.{state_key}.{state_value}", state_value)
