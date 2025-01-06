@@ -131,12 +131,13 @@ class CLIENT_MESSAGE(Enum):
     }
     SET_TIMER = {
         "description": "Set timer",
-        "hex": "55aa10001c0000cb34690001600800017ca0[start_h][start_min]00[end_h][end_min]0017153b[checksum]",
+        "hex": "55aa10001c0000cb346900016008000[end_timer_set][start_h][start_min]00[end_h][end_min]0017153b[checksum]",
         "structure": {
             "start_h": slice(35, 38),
             "start_min": slice(38, 40),
             "end_h": slice(42, 44),
-            "end_min": slice(44, 46)
+            "end_min": slice(44, 46),
+            "end_timer_set": slice(31, 35)
         }
     }
     RESET_TIMER = {

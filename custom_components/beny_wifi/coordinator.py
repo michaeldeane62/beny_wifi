@@ -96,7 +96,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         end += timedelta(days=1)
                 else:
                     # timer end is not set
-                    end = self.get_translated_state("timer", "time_unset")
+                    end = await self.get_translated_state("timer", "time_unset")
 
             data['timer_start'] = start
             data['timer_end'] = end

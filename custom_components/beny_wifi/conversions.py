@@ -28,9 +28,18 @@ def convert_timer(start_time_str: str, end_time_str: str) -> dict:
     time_params = start_time_str.split(':')
     times["start_h"] = get_hex(int(time_params[0]))
     times["start_min"] = get_hex(int(time_params[1]))
-    time_params = end_time_str.split(':')
-    times["end_h"] = get_hex(int(time_params[0]))
-    times["end_min"] = get_hex(int(time_params[1]))
+    # set end time
+    if end_time_str:
+        times["end_timer_set"] = "11111"
+        time_params = end_time_str.split(':')
+        times["end_h"] = get_hex(int(time_params[0]))
+        times["end_min"] = get_hex(int(time_params[1]))
+    # no end time given
+    else:
+        times["end_timer_set"] = "00000"
+        times["end_h"] = get_hex(0)
+        times["end_min"] = get_hex(0)
+
     return times
 
 def get_message_type(data: str) -> CLIENT_MESSAGE | SERVER_MESSAGE:

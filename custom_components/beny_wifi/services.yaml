@@ -32,7 +32,7 @@ set_timer:
       selector: 
         time:
     end_time:
-      required: true
+      required: false
       selector: 
         time:
 

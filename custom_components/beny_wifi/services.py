@@ -42,7 +42,10 @@ async def async_setup_services(hass: HomeAssistant) -> bool:
         coordinator: BenyWifiUpdateCoordinator = _get_coordinator_from_device(hass, call)["coordinator"]
         if coordinator:
             device_name = _get_device_name(hass, call.data[ATTR_DEVICE_ID])
-            await coordinator.async_set_timer(device_name, call.data["start_time"], call.data["end_time"])
+            start = call.data.get("start_time", None)
+            end = call.data.get("end_time", None)
+
+            await coordinator.async_set_timer(device_name, start, end)
         else:
             _LOGGER.error(f"Device id {call.data[ATTR_DEVICE_ID]} not found")  # noqa: G004
 
