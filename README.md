@@ -8,6 +8,7 @@
     <img alt="Home Assistant" src="https://img.shields.io/badge/home%20assistant-%2341BDF5.svg"/>
     <img alt="Local polling" src="https://img.shields.io/badge/IOT_class-Local_polling-blue">
     <img alt="Static Badge" src="https://img.shields.io/badge/License-GPL_3.0-green">
+    <img alt="Version" src="https://img.shields.io/github/manifest-json/v/Jarauvi/beny_wifi?filename=custom_components%2Fbeny_wifi%2Fmanifest.json&label=Version">
 </div>
 
 :warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
