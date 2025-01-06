@@ -2,7 +2,7 @@
     <img alt="beny-wifi" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/logo.png?raw=true">
 </div>
 
-# Beny Wifi
+# ⚡ Beny Wifi ⚡
 
 <div align="left">
     <img alt="Home Assistant" src="https://img.shields.io/badge/home%20assistant-%2341BDF5.svg"/>
@@ -11,7 +11,7 @@
     <img alt="Version" src="https://img.shields.io/github/manifest-json/v/Jarauvi/beny_wifi?filename=custom_components%2Fbeny_wifi%2Fmanifest.json&label=Version">
 </div>
 
-:warning: *DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
+⚠️*DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
 
 This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers via Wifi. 
 
@@ -19,13 +19,13 @@ Integration mimics ZBox phone app's communication with charger. All parameters a
 
 ### Supported chargers
 
-I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have one and you're willing to test the compatibility, please share your results and I will add the model to supported devices :pray: 
+I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have one and you're willing to test the compatibility, please share your results and I will add the model to supported devices 🙏 
 
 ### Confirmed to work with models
 
 | Model              | Firmware version |       Status      |
 | ------------------ | ---------------- | ----------------- |
-| BCP-AT1N-L         | 1.26             |:white_check_mark: |
+| BCP-AT1N-L         | 1.26             | ✅            |
 
 ### Installation
 
