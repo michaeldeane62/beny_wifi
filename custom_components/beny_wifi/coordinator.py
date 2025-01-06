@@ -68,7 +68,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Set unset state to both start and end time if timer is not set at all
             if data['timer_state'] == 'UNSET':
-                unset = await self.get_translated_state(self.hass, "start_time", "time_unset")
+                unset = await self.get_translated_state("start_time", "time_unset")
                 start = unset
                 end = unset
             else:
@@ -96,7 +96,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         end += timedelta(days=1)
                 else:
                     # timer end is not set
-                    end = self.get_translated_state(self.hass, "start_time", "time_unset")
+                    end = self.get_translated_state("start_time", "time_unset")
 
             data['timer_start'] = start
             data['timer_end'] = end
@@ -173,7 +173,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._send_udp_request(request)
             _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004
 
-    async def get_translated_state(self, state_key, state_value, language="en"):
+    async def get_translated_state(self, state_key, state_value):
         "Get translated states for sensors."
 
         user_language = self.hass.config.language
