@@ -40,6 +40,9 @@ class BenyWifiSensor(Entity):
         self._device_model = device_model
         self.entity_id = f"sensor.{device_id}_{key}"
 
+        if self.key in ("start_timer", "end_timer"):
+            self.device_class = "timer"
+
     @property
     def name(self):
         """Return the name of the sensor."""
