@@ -1,5 +1,11 @@
 """Sensors for Beny Wifi."""
 
+from homeassistant.const import (
+    UnitOfElectricCurrent,
+    UnitOfElectricPotential,
+    UnitOfEnergy,
+    UnitOfPower,
+)
 from homeassistant.helpers.entity import DeviceInfo, Entity
 
 from .const import DOMAIN, MODEL, SERIAL
@@ -11,18 +17,18 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     device_id = config_entry.data[SERIAL]
     device_model = config_entry.data[MODEL]
     sensors = [
-        BenyWifiSensor(coordinator, "state", "Charger State", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "power", "Power", "kW", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "voltage1", "Voltage L1", "V", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "voltage2", "Voltage L2", "V", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "voltage3", "Voltage L3", "V", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "current1", "Current L1", "A", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "current2", "Current L2", "A", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "current3", "Current L3", "A", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "max_current", "Max Current", "A", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "total_kwh", "Total Energy", "kWh", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "timer_start", "Timer Start", device_id=device_id, device_model=device_model),
-        BenyWifiSensor(coordinator, "timer_end", "Timer End", device_id=device_id, device_model=device_model),
+        BenyWifiChargerStateSensor(coordinator, "charger_state", device_id=device_id, device_model=device_model),
+        BenyWifiPowerSensor(coordinator, "power", device_id=device_id, device_model=device_model),
+        BenyWifiVoltageSensor(coordinator, "voltage1", device_id=device_id, device_model=device_model),
+        BenyWifiVoltageSensor(coordinator, "voltage2", device_id=device_id, device_model=device_model),
+        BenyWifiVoltageSensor(coordinator, "voltage3", device_id=device_id, device_model=device_model),
+        BenyWifiCurrentSensor(coordinator, "current1", device_id=device_id, device_model=device_model),
+        BenyWifiCurrentSensor(coordinator, "current2", device_id=device_id, device_model=device_model),
+        BenyWifiCurrentSensor(coordinator, "current3", device_id=device_id, device_model=device_model),
+        BenyWifiCurrentSensor(coordinator, "max_current", device_id=device_id, device_model=device_model),
+        BenyWifiEnergySensor(coordinator, "total_kwh", device_id=device_id, device_model=device_model),
+        BenyWifiTimerSensor(coordinator, "timer_start", device_id=device_id, device_model=device_model),
+        BenyWifiTimerSensor(coordinator, "timer_end", device_id=device_id, device_model=device_model),
     ]
 
     async_add_entities(sensors)
@@ -30,23 +36,15 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class BenyWifiSensor(Entity):
     """Charger sensor model."""
 
-    def __init__(self, coordinator, key, name, unit=None, device_id=None, device_model=None):
+    def __init__(self, coordinator, key, device_id=None, device_model=None):
         """Initialize the sensor."""
         self.coordinator = coordinator
         self.key = key
-        self._name = name
-        self._unit = unit
+        self._attr_translation_key = key
         self._device_id = device_id
         self._device_model = device_model
         self.entity_id = f"sensor.{device_id}_{key}"
-
-        if self.key in ("start_timer", "end_timer"):
-            self.device_class = "timer"
-
-    @property
-    def name(self):
-        """Return the name of the sensor."""
-        return self._name
+        self._attr_has_entity_name = True
 
     @property
     def unique_id(self):
@@ -57,11 +55,6 @@ class BenyWifiSensor(Entity):
     def state(self):
         """Return the current state of the sensor."""
         return self.coordinator.data.get(self.key)
-
-    @property
-    def unit_of_measurement(self):
-        """Sensor unit."""
-        return self._unit
 
     async def async_update(self):
         """Update the sensor."""
@@ -78,25 +71,96 @@ class BenyWifiSensor(Entity):
             serial_number=self._device_id
         )
 
+class BenyWifiChargerStateSensor(BenyWifiSensor):
+    """Charger state sensor class."""
+
+    def __init__(self, coordinator, key, device_id=None, device_model=None):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model)
+
     @property
     def icon(self):
-        """Set sensor icons."""
+        """Return corresponding icon."""
+        return "mdi:ev-station"
 
-        if self.key == "state":
-            return "mdi:ev-station"
+class BenyWifiCurrentSensor(BenyWifiSensor):
+    """Current sensor class."""
 
-        if self.key == "total_kwh":
-            return "mdi:power-plug-battery"
+    def __init__(self, coordinator, key, device_id=None, device_model=None):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model)
 
-        if self.key == "power":
-            return "mdi:ev-plug-type2"
+    @property
+    def icon(self):
+        """Return corresponding icon."""
+        return "mdi:sine-wave"
 
-        if self._unit == "A":
-            return "mdi:sine-wave"
+    @property
+    def unit_of_measurement(self):
+        """Sensor unit."""
+        return UnitOfElectricCurrent.AMPERE
 
-        if self._unit == "V":
-            return "mdi:flash-triangle"
+class BenyWifiVoltageSensor(BenyWifiSensor):
+    """Voltage sensor class."""
 
+    def __init__(self, coordinator, key, device_id=None, device_model=None):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model)
+
+    @property
+    def icon(self):
+        """Return corresponding icon."""
+        return "mdi:flash-triangle"
+
+    @property
+    def unit_of_measurement(self):
+        """Sensor unit."""
+        return UnitOfElectricPotential.VOLT
+
+class BenyWifiPowerSensor(BenyWifiSensor):
+    """Power sensor class."""
+
+    def __init__(self, coordinator, key, device_id=None, device_model=None):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model)
+
+    @property
+    def icon(self):
+        """Return corresponding icon."""
+        return "mdi:ev-plug-type2"
+
+    @property
+    def unit_of_measurement(self):
+        """Sensor unit."""
+        return UnitOfPower.KILO_WATT
+
+class BenyWifiEnergySensor(BenyWifiSensor):
+    """Energy sensor class."""
+
+    def __init__(self, coordinator, key, device_id=None, device_model=None):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model)
+
+    @property
+    def icon(self):
+        """Return corresponding icon."""
+        return "mdi:power-plug-battery"
+
+    @property
+    def unit_of_measurement(self):
+        """Sensor unit."""
+        return UnitOfEnergy.KILO_WATT_HOUR
+
+class BenyWifiTimerSensor(BenyWifiSensor):
+    """Timer sensor class."""
+
+    def __init__(self, coordinator, key, device_id=None, device_model=None):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model)
+
+    @property
+    def icon(self):
+        """Return corresponding icon."""
         if self.key == "timer_start":
             return "mdi:timer-sand-empty"
 
@@ -104,4 +168,3 @@ class BenyWifiSensor(Entity):
             return "mdi:timer-sand-full"
 
         return None
-

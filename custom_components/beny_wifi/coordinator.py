@@ -6,7 +6,6 @@ import socket
 from typing import Any
 
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.translation import async_get_translations
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util.dt import utcnow
 
@@ -68,7 +67,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Set unset state to both start and end time if timer is not set at all
             if data['timer_state'] == 'UNSET':
-                unset = await self.get_translated_state("time_unset")
+                unset = "not_set"
                 start = unset
                 end = unset
             else:
@@ -96,12 +95,12 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         end += timedelta(days=1)
                 else:
                     # timer end is not set
-                    end = await self.get_translated_state("time_unset")
+                    end = "not_set"
 
             data['timer_start'] = start
             data['timer_end'] = end
 
-            data['state'] = data['state'].lower()
+            data['charger_state'] = data['state'].lower()
 
             data['power'] = float(data['power']) / 10
             data['total_kwh'] = float(data['total_kwh'])
@@ -153,33 +152,23 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Set charging timer."""
 
         # check if charger is not unplugged
-        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_charger_state"
         state_sensor_value = self.hass.states.get(state_sensor_id)
 
         if state_sensor_value and state_sensor_value != CHARGER_STATE.UNPLUGGED.name.lower():
             request = build_message(CLIENT_MESSAGE.SET_TIMER, convert_timer(start_time, end_time)).encode('ascii')
             self._send_udp_request(request)
+
             _LOGGER.info(f"{device_name}: charging timer set")  # noqa: G004
 
     async def async_reset_timer(self, device_name: str):
         """Reset charging timer."""
 
         # check if charger is not unplugged
-        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_charger_state"
         state_sensor_value = self.hass.states.get(state_sensor_id)
 
         if state_sensor_value and state_sensor_value != CHARGER_STATE.UNPLUGGED.name.lower():
             request = build_message(CLIENT_MESSAGE.RESET_TIMER).encode('ascii')
             self._send_udp_request(request)
             _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004
-
-    async def get_translated_state(self, state_value):
-        "Get translated states for sensors."
-
-        user_language = self.hass.config.language
-
-        # Retrieve translations for the specified language
-        translations = await async_get_translations(self.hass, user_language, category="state")
-
-        # Lookup the translation
-        return translations.get(f"component.beny_wifi.state.{state_value}", state_value)

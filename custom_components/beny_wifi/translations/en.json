@@ -1,7 +1,59 @@
 {
     "title": "Beny Wifi",
-    "state": {
-      "time_unset": "Unset"
+    "entity": {
+      "sensor": {
+        "charger_state": {
+          "name": "Charger State",
+          "state": {
+            "abnormal": "abnormal",
+            "unplugged": "unplugged",
+            "standby": "standby",
+            "starting": "starting",
+            "unknown": "unknown",
+            "waiting": "waiting",
+            "charging": "charging"
+          }
+        },
+        "power": {
+          "name": "Power"
+        },
+        "voltage1": {
+          "name": "Voltage L1"
+        },
+        "voltage2": {
+          "name": "Voltage L2"
+        },
+        "voltage3": {
+          "name": "Voltage L3"
+        },
+        "current1": {
+          "name": "Current L1"
+        },
+        "current2": {
+          "name": "Current L2"
+        },
+        "current3": {
+          "name": "Current L3"
+        },
+        "max_current": {
+          "name": "Max Current"
+        },
+        "total_kwh": {
+          "name": "Total Energy"
+        },
+        "timer_start": {
+          "name": "Timer Start",
+          "state": {
+            "not_set": "Not set"
+          }
+        },
+        "timer_end": {
+          "name": "Timer End",
+          "state": {
+            "not_set": "Not set"
+          }
+        }
+      }
     },
     "config": {
       "step": {

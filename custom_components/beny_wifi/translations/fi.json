@@ -1,0 +1,135 @@
+{
+    "title": "Beny Wifi",
+    "entity": {
+      "sensor": {
+        "charger_state": {
+          "name": "Latausaseman tila",
+          "state": {
+            "abnormal": "vika",
+            "unplugged": "ei kytketty",
+            "standby": "valmiustila",
+            "starting": "aloittaa",
+            "unknown": "tuntematon",
+            "waiting": "odottaa",
+            "charging": "lataa"
+          }
+        },
+        "power": {
+          "name": "Teho"
+        },
+        "voltage1": {
+          "name": "Jännite L1"
+        },
+        "voltage2": {
+          "name": "Jännite L2"
+        },
+        "voltage3": {
+          "name": "Jännite L3"
+        },
+        "current1": {
+          "name": "Virta L1"
+        },
+        "current2": {
+          "name": "Virta L2"
+        },
+        "current3": {
+          "name": "Virta L3"
+        },
+        "max_current": {
+          "name": "Maksimi virta"
+        },
+        "total_kwh": {
+          "name": "Ladattu yhteensä"
+        },
+        "timer_start": {
+          "name": "Ajastuksen alku",
+          "state": {
+            "not_set": "ei asetettu"
+          }
+        },
+        "timer_end": {
+          "name": "Ajastuksen loppu",
+          "state": {
+            "not_set": "ei asetettu"
+          }
+        }
+      }
+    },
+    "config": {
+      "step": {
+        "user": {
+          "title": "Lisää latausasema",
+          "description": "Beny Wifi integraation konfigurointi.",
+          "data": {
+            "ip_address": "IP-osoite",
+            "port": "Portti",
+            "update_interval": "Päivitysväli"
+          }
+        }
+      },
+      "error": {
+        "device_already_configured": "Laite on jo lisätty.",
+        "cannot_communicate": "Laitteen kanssa kommunikointi epäonnistui",
+        "cannot_connect": "Laitteeseen ei voida yhdistää. Tarkasta IP-osoite ja portti."
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Valinnat",
+          "description": "Päivitä Beny Wifi konfiguraatiota."
+        }
+      }
+    },
+    "services": {
+      "start_charging": {
+        "name": "Aloita lataus",
+        "description": "Aloittaa lataamisen",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          }
+        }
+      },
+      "stop_charging": {
+        "name": "Pysäytä lataaminen",
+        "description": "Pysäyttää lataamisen",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          }
+        }
+      },
+      "set_timer": {
+        "name": "Aseta ajastus",
+        "description": "Asettaa ajastimen",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          },
+          "start_time": {
+            "name": "Aloitusaika",
+            "description": "Aika, jolloin lataaminen aloitetaan"
+          },
+          "end_time": {
+            "name": "Lopetusaika",
+            "description": "Aika, jolloin lataaminen lopetetaan"
+          }
+        }
+      },
+      "reset_timer": {
+        "name": "Nollaa ajastin",
+        "description": "Nollaa latausajastimen",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          }
+        }
+      }
+    }
+  }
+  
