@@ -1,5 +1,5 @@
 <div align="left">
-    <img alt="beny-wifi" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/icon.png?raw=true">
+    <img alt="beny-wifi" height="128px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/icon.png?raw=true">
 </div>
 
 # ⚡ Beny Wifi ⚡
