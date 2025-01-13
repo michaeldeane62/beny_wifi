@@ -130,7 +130,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         """Start or stop charging service."""
 
         # check if charger is unplugged
-        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_state"
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_charger_state"
         state_sensor_value = self.hass.states.get(state_sensor_id)
 
         if state_sensor_value and state_sensor_value != CHARGER_STATE.UNPLUGGED.name.lower():
