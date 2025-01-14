@@ -63,6 +63,7 @@ Currently, integration contains creates charger devices with following sensors:
 | voltage3           | [V]             | Voltage L3                                                                    |
 | power              | [kW]            | Current power consumption                                                     |
 | total_energy       | [kWh]           | Session based charged capacity                                                |
+| maximum_session_consumption       | [kWh]           | Session based maximum consumption                                                |
 | timer_start        | [timestamp]     | Currently set timer start time                                                |
 | timer_end          | [timestamp]     | Currently set timer end time                                                  |
 
@@ -73,11 +74,14 @@ Currently integration supports following actions:
 - beny_wifi.stop_charging (*device_id*)
 - beny_wifi.set_timer (*device_id | start time | end time*)
 - beny_wifi.reset_timer (*device_id*)
+- beny_wifi.request_weekly_schedule (*device_id*)
+- beny_wifi.set_weekly_schedule (*device_id | sunday | monday | tuesday | wednesday | thursday | friday | saturday | start time | end time)
+- beny_wifi.set_maximum_monthly_consumption (*device_id | maximum_consumption*)
+- beny_wifi.set_maximum_session_consumption (*device_id | maximum_consumption*)
 
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
 - action to set max amps
-- action to set weekly schedule
 - map missing parameters as sensors (like outdoor temperature)
 - add integration to hacs
