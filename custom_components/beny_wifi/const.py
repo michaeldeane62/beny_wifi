@@ -93,6 +93,7 @@ class REQUEST_TYPE(Enum):
     """Request type to retrieve data from charger."""
 
     VALUES = 112
+    SETTINGS = 113
     MODEL = 4
 
 class COMMON(Enum):
@@ -145,6 +146,36 @@ class CLIENT_MESSAGE(Enum):
         "hex": "55aa10001c0000cb34690000000000000000000000000000171035[checksum]",
         "structure": {}
     }
+    REQUEST_SETTINGS = {
+        "description": "Request settings",
+        "hex": "55aa10000b0000cb3471[checksum]"
+    }
+    SET_SCHEDULE = {
+        "description": "Set schedule",
+        "hex": "55aa1000160000cb347519010e0f2725[weekdays][start_h][start_min][end_h][end_min][checksum]",
+        "structure": {
+            "weekdays": slice(32, 34),
+            "start_h": slice(34, 36),
+            "start_min": slice(36, 38),
+            "end_h": slice(38, 40),
+            "end_min": slice(40, 42)
+        }
+    }
+    SET_MAX_MONTHLY_CONSUMPTION = {
+        "description": "Set maximum monthly consumption",
+        "hex": "55aa10000d0000cb3478[maximum_consumption][checksum]",
+        "structure": {
+            "maximum_consumption": slice(20, 24)
+        }
+    }
+    SET_MAX_SESSION_CONSUMPTION = {
+        "description": "Set maximum session consumption",
+        "hex": "55aa10000c0000cb3474[maximum_consumption][checksum]",
+        "structure": {
+            "maximum_consumption": slice(20, 22)
+        }
+    }
+
     # DO NOT USE, UNCONFIRMED PARAMETERS
     SET_VALUES = {
         "description": "Send setting values to charger",
@@ -190,9 +221,22 @@ class SERVER_MESSAGE(Enum):
             "timer_start_min": slice(46, 48),
             "timer_end_h": slice(50, 52),
             "timer_end_min": slice(52, 54),
+            "maximum_session_consumption": slice(58, 60)
         }
     }
     SEND_ACK = {
         "description": "Acknowledge command",
         "structure": {}
+    }
+
+    SEND_SETTINGS = {
+        "description": "Receive settings from charger",
+        "structure": {
+            "weekdays": slice(30, 32),
+            "timer_start_h": slice(32, 34),
+            "timer_start_min": slice(34, 36),
+            "timer_end_h": slice(36, 38),
+            "timer_end_min": slice(38, 40),
+
+        }
     }

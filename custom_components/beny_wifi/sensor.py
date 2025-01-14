@@ -27,8 +27,9 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
         BenyWifiCurrentSensor(coordinator, "current3", device_id=device_id, device_model=device_model),
         BenyWifiCurrentSensor(coordinator, "max_current", device_id=device_id, device_model=device_model),
         BenyWifiEnergySensor(coordinator, "total_kwh", device_id=device_id, device_model=device_model),
-        BenyWifiTimerSensor(coordinator, "timer_start", device_id=device_id, device_model=device_model),
-        BenyWifiTimerSensor(coordinator, "timer_end", device_id=device_id, device_model=device_model),
+        BenyWifiEnergySensor(coordinator, "maximum_session_consumption", icon="mdi:meter-electric", device_id=device_id, device_model=device_model),
+        BenyWifiTimerSensor(coordinator, "timer_start", icon="mdi:timer-sand-full", device_id=device_id, device_model=device_model),
+        BenyWifiTimerSensor(coordinator, "timer_end", icon="mdi:timer-sand-empty", device_id=device_id, device_model=device_model),
     ]
 
     async_add_entities(sensors)
@@ -36,7 +37,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 class BenyWifiSensor(Entity):
     """Charger sensor model."""
 
-    def __init__(self, coordinator, key, device_id=None, device_model=None):
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon=None):
         """Initialize the sensor."""
         self.coordinator = coordinator
         self.key = key
@@ -45,6 +46,7 @@ class BenyWifiSensor(Entity):
         self._device_model = device_model
         self.entity_id = f"sensor.{device_id}_{key}"
         self._attr_has_entity_name = True
+        self._icon = icon
 
     @property
     def unique_id(self):
@@ -71,29 +73,24 @@ class BenyWifiSensor(Entity):
             serial_number=self._device_id
         )
 
-class BenyWifiChargerStateSensor(BenyWifiSensor):
-    """Charger state sensor class."""
-
-    def __init__(self, coordinator, key, device_id=None, device_model=None):
-        """Initialize sensor."""
-        super().__init__(coordinator, key, device_id, device_model)
-
     @property
     def icon(self):
         """Return corresponding icon."""
-        return "mdi:ev-station"
+        return self._icon
+
+class BenyWifiChargerStateSensor(BenyWifiSensor):
+    """Charger state sensor class."""
+
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon="mdi:ev-station"):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model, icon)
 
 class BenyWifiCurrentSensor(BenyWifiSensor):
     """Current sensor class."""
 
-    def __init__(self, coordinator, key, device_id=None, device_model=None):
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon="mdi:sine-wave"):
         """Initialize sensor."""
-        super().__init__(coordinator, key, device_id, device_model)
-
-    @property
-    def icon(self):
-        """Return corresponding icon."""
-        return "mdi:sine-wave"
+        super().__init__(coordinator, key, device_id, device_model, icon)
 
     @property
     def unit_of_measurement(self):
@@ -103,14 +100,9 @@ class BenyWifiCurrentSensor(BenyWifiSensor):
 class BenyWifiVoltageSensor(BenyWifiSensor):
     """Voltage sensor class."""
 
-    def __init__(self, coordinator, key, device_id=None, device_model=None):
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon="mdi:flash-triangle"):
         """Initialize sensor."""
-        super().__init__(coordinator, key, device_id, device_model)
-
-    @property
-    def icon(self):
-        """Return corresponding icon."""
-        return "mdi:flash-triangle"
+        super().__init__(coordinator, key, device_id, device_model, icon)
 
     @property
     def unit_of_measurement(self):
@@ -120,14 +112,9 @@ class BenyWifiVoltageSensor(BenyWifiSensor):
 class BenyWifiPowerSensor(BenyWifiSensor):
     """Power sensor class."""
 
-    def __init__(self, coordinator, key, device_id=None, device_model=None):
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon="mdi:ev-plug-type2"):
         """Initialize sensor."""
-        super().__init__(coordinator, key, device_id, device_model)
-
-    @property
-    def icon(self):
-        """Return corresponding icon."""
-        return "mdi:ev-plug-type2"
+        super().__init__(coordinator, key, device_id, device_model, icon)
 
     @property
     def unit_of_measurement(self):
@@ -137,14 +124,9 @@ class BenyWifiPowerSensor(BenyWifiSensor):
 class BenyWifiEnergySensor(BenyWifiSensor):
     """Energy sensor class."""
 
-    def __init__(self, coordinator, key, device_id=None, device_model=None):
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon="mdi:power-plug-battery"):
         """Initialize sensor."""
-        super().__init__(coordinator, key, device_id, device_model)
-
-    @property
-    def icon(self):
-        """Return corresponding icon."""
-        return "mdi:power-plug-battery"
+        super().__init__(coordinator, key, device_id, device_model, icon)
 
     @property
     def unit_of_measurement(self):
@@ -154,17 +136,6 @@ class BenyWifiEnergySensor(BenyWifiSensor):
 class BenyWifiTimerSensor(BenyWifiSensor):
     """Timer sensor class."""
 
-    def __init__(self, coordinator, key, device_id=None, device_model=None):
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon="mdi:timer-sand-empty"):
         """Initialize sensor."""
-        super().__init__(coordinator, key, device_id, device_model)
-
-    @property
-    def icon(self):
-        """Return corresponding icon."""
-        if self.key == "timer_start":
-            return "mdi:timer-sand-empty"
-
-        if self.key == "timer_end":
-            return "mdi:timer-sand-full"
-
-        return None
+        super().__init__(coordinator, key, device_id, device_model, icon)

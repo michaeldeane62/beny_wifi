@@ -41,6 +41,9 @@
         "total_kwh": {
           "name": "Ladattu yhteensä"
         },
+        "maximum_session_consumption": {
+          "name": "Session latausraja"
+        },
         "timer_start": {
           "name": "Ajastuksen alku",
           "state": {
@@ -120,6 +123,52 @@
           }
         }
       },
+      "set_weekly_schedule": {
+        "name": "Aseta viikkoajastin",
+        "description": "Asettaa päiväkohtaisen latausajastuksen",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          },
+          "sunday": {
+            "name": "Sunnuntai",
+            "description": "Asettaa sunnuntain ajastuksen"
+          },
+          "monday": {
+            "name": "Maanantai",
+            "description": "Asettaa maanantain ajastuksen"
+          },
+          "tuesday": {
+            "name": "Tiistai",
+            "description": "Asettaa tiistain ajastuksen"
+          },
+          "wednesday": {
+            "name": "Keskiviikko",
+            "description": "Asettaa keskiviikon ajastuksen"
+          },
+          "thursday": {
+            "name": "Torstai",
+            "description": "Asettaa torstain ajastuksen"
+          },
+          "friday": {
+            "name": "Perjantai",
+            "description": "Asettaa perjantain ajastuksen"
+          },
+          "saturday": {
+            "name": "Lauantai",
+            "description": "Asettaa lauantain ajastuksen"
+          },
+          "start_time": {
+            "name": "Aloitusaika",
+            "description": "Aika, jolloin lataaminen aloitetaan"
+          },
+          "end_time": {
+            "name": "Lopetusaika",
+            "description": "Aika, jolloin lataaminen lopetetaan"
+          }
+        }
+      },
       "reset_timer": {
         "name": "Nollaa ajastin",
         "description": "Nollaa latausajastimen",
@@ -127,6 +176,44 @@
           "device_id": {
             "name": "Latausasema",
             "description": "Kohteena toimiva latausasema"
+          }
+        }
+      },
+      "request_weekly_schedule": {
+        "name": "Pyydä viikkoajastukset",
+        "description": "Palauttaa laturin viikkoajastukset",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          }
+        }
+      },
+      "set_maximum_monthly_consumption": {
+        "name": "Aseta kuukausittainen latausraja",
+        "description": "Asettaa kuukausittaisen latausrajan",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          },
+          "maximum_consumption": {
+            "name": "Latausraja",
+            "description": "Latausraja kilowattitunteina"
+          }
+        }
+      },
+      "set_maximum_session_consumption": {
+        "name": "Aseta session latausraja",
+        "description": "Asettaa session latausrajan",
+        "fields": {
+          "device_id": {
+            "name": "Latausasema",
+            "description": "Kohteena toimiva latausasema"
+          },
+          "maximum_consumption": {
+            "name": "Latausraja",
+            "description": "Latausraja kilowattitunteina"
           }
         }
       }

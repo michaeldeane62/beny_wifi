@@ -9,7 +9,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util.dt import utcnow
 
-from .communication import build_message, read_message
+from .communication import SERVER_MESSAGE, build_message, read_message
 from .const import (
     CHARGER_COMMAND,
     CHARGER_STATE,
@@ -18,7 +18,7 @@ from .const import (
     REQUEST_TYPE,
     SERIAL,
 )
-from .conversions import convert_timer, get_hex
+from .conversions import convert_schedule, convert_timer, get_hex
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -148,6 +148,22 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             self._send_udp_request(request)
             _LOGGER.info(f"{device_name}: {command} charging command sent")  # noqa: G004
 
+    async def async_set_max_monthly_consumption(self, device_name: str, maximum_consumption: int):
+        """Set maximum consumption."""
+
+        request = build_message(CLIENT_MESSAGE.SET_MAX_MONTHLY_CONSUMPTION, {"maximum_consumption": get_hex(maximum_consumption, 4)}).encode('ascii')
+        self._send_udp_request(request)
+
+        _LOGGER.info(f"{device_name}: maximum consumption set")  # noqa: G004
+
+    async def async_set_max_session_consumption(self, device_name: str, maximum_consumption: int):
+        """Set maximum consumption."""
+
+        request = build_message(CLIENT_MESSAGE.SET_MAX_SESSION_CONSUMPTION, {"maximum_consumption": get_hex(maximum_consumption)}).encode('ascii')
+        self._send_udp_request(request)
+
+        _LOGGER.info(f"{device_name}: maximum consumption set")  # noqa: G004
+
     async def async_set_timer(self, device_name: str, start_time: str, end_time: str):
         """Set charging timer."""
 
@@ -161,6 +177,14 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             _LOGGER.info(f"{device_name}: charging timer set")  # noqa: G004
 
+    async def async_set_schedule(self, device_name: str, weekdays: list[bool], start_time: str, end_time: str):
+        """Set charging timer."""
+
+        request = build_message(CLIENT_MESSAGE.SET_SCHEDULE, convert_schedule(reversed(weekdays), start_time, end_time)).encode('ascii')
+        self._send_udp_request(request)
+
+        _LOGGER.info(f"{device_name}: charging schedule set")  # noqa: G004
+
     async def async_reset_timer(self, device_name: str):
         """Reset charging timer."""
 
@@ -172,3 +196,23 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             request = build_message(CLIENT_MESSAGE.RESET_TIMER).encode('ascii')
             self._send_udp_request(request)
             _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004
+
+    async def async_request_weekly_schedule(self, device_name: str):
+        """Get set weekly schedule from charger."""
+
+        request = build_message(CLIENT_MESSAGE.REQUEST_SETTINGS).encode('ascii')
+        response = self._send_udp_request(request)
+        # Decode and parse the response
+        response = response.decode('ascii')
+        data = read_message(response, SERVER_MESSAGE.SEND_SETTINGS)
+        data['start_time'] = f"{data['timer_start_h']}:{data['timer_start_min']}"
+        data['end_time'] = f"{data['timer_end_h']}:{data['timer_end_min']}"
+        _LOGGER.info(f"{device_name}: requested weekly schedule")  # noqa: G004
+        return {
+            "result": {
+                "schedule": data["schedule"],
+                "weekdays": data["weekdays"],
+                "start_time": data["start_time"],
+                "end_time": data["end_time"]
+            }
+        }

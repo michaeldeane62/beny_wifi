@@ -10,17 +10,19 @@ from .const import (  # noqa: D100
     validate_checksum,
 )
 from .conversions import (  # type: ignore  # noqa: PGH003
+    convert_weekdays_to_dict,
     get_ip,
     get_message_type,
     get_model,
 )
 
 
-def read_message(data) -> dict:
+def read_message(data, msg_type:str | None = None) -> dict:
     """Convert ascii hex string to dict.
 
     Args:
         data (str): beny client or server message as ascii hex string
+        msg_type (str): if message type is not autodetected
 
     Returns:
         dict: dict containing translated parameters from message
@@ -31,8 +33,10 @@ def read_message(data) -> dict:
     if not validate_checksum(data):
         return None
 
-    # find out message type first
-    msg_type = get_message_type(data)
+    if not msg_type:
+        # try to find out message type automatically
+        msg_type = get_message_type(data)
+
     msg = {"message_type": str(msg_type)}
 
     # common message header parameters first
@@ -67,6 +71,20 @@ def read_message(data) -> dict:
         msg["serial"] = int(data[SERVER_MESSAGE.HANDSHAKE.value["structure"]["serial"]], 16)
         msg["ip"] = get_ip(data)
         msg["port"] = int(data[SERVER_MESSAGE.HANDSHAKE.value["structure"]["port"]], 16)
+
+    # server sends settings
+    if msg_type == SERVER_MESSAGE.SEND_SETTINGS:
+        for param, pos in msg_type.value["structure"].items():
+            value = int(data[pos], 16)
+            if param == "weekdays":
+                if value == 0:
+                    msg["schedule"] = "disabled"
+                else:
+                    msg["schedule"] = "enabled"
+
+                msg[param] = convert_weekdays_to_dict(value)
+            else:
+                msg[param] = value
 
     # client sends command to start or stop the charging
     elif msg_type == CLIENT_MESSAGE.SEND_CHARGER_COMMAND:

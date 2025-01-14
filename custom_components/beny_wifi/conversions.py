@@ -1,17 +1,18 @@
 from .const import CLIENT_MESSAGE, COMMON, SERVER_MESSAGE  # noqa: D100
 
 
-def get_hex(data: int) -> str:
+def get_hex(data: int, length: int = 2) -> str:
     """Convert int to hex string.
 
     Args:
         data (int): integer value converted
+        length (int): padding size
 
     Returns:
         str: hex string
 
     """
-    return f"{data:02x}"
+    return f"{data:0{length}x}"
 
 def convert_timer(start_time_str: str, end_time_str: str) -> dict:
     """Convert start and end times to timer parameters.
@@ -41,6 +42,63 @@ def convert_timer(start_time_str: str, end_time_str: str) -> dict:
         times["end_min"] = get_hex(0)
 
     return times
+
+def convert_schedule(weekdays: list[bool], start_time_str: str, end_time_str: str):
+    """Convert schedule data to hex.
+
+    Args:
+        weekdays (list[bool]): list of booleans for weekdays
+        start_time_str (str): charging start time
+        end_time_str (str): charging end time
+
+    Returns:
+        dict: dict of hex values
+
+    """
+    params = {}
+    params["weekdays"] = convert_weekdays_to_hex(weekdays)
+    time_params = start_time_str.split(':')
+    params["start_h"] = get_hex(int(time_params[0]))
+    params["start_min"] = get_hex(int(time_params[1]))
+    time_params = end_time_str.split(':')
+    params["end_h"] = get_hex(int(time_params[0]))
+    params["end_min"] = get_hex(int(time_params[1]))
+
+    return params
+
+def convert_weekdays_to_dict(weekdays: int):
+    """Convert an integer value to a dictionary mapping weekdays to boolean states.
+
+    Args:
+        weekdays (int): An integer representing the weekday bits (e.g., 0x0d or 127).
+
+    Returns:
+        dict: A dictionary with weekdays as keys and bit states as booleans.
+
+    """
+
+    # Convert the integer to a 7-bit binary string
+    binary_value = bin(weekdays)[2:].zfill(7)  # Ensure 7 bits for weekdays
+
+    # Map weekdays to the corresponding binary bits
+    weekdays = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+
+    # Create the dictionary mapping weekdays to boolean values
+    return {day: bool(int(bit)) for day, bit in zip(weekdays, reversed(binary_value), strict=False)}
+
+def convert_weekdays_to_hex(weekdays: list[bool]):
+    """Convert list of booleans to hex.
+
+    Args:
+        weekdays (list[bool]): list of booleans for weekday states
+
+    Returns:
+        str: hex of weekday states
+
+    """
+
+    bin_val = ''.join(['1' if day else '0' for day in weekdays])
+    return f"{int(bin_val, 2):02x}"
 
 def get_message_type(data: str) -> CLIENT_MESSAGE | SERVER_MESSAGE:
     """Get message structure by id.

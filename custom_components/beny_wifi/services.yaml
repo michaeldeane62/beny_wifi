@@ -45,3 +45,97 @@ reset_timer:
       selector:
         device:
           integration: beny_wifi
+
+set_weekly_schedule:
+  name: "Set weekly schedule"
+  description: "Sets weekly schedule"
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi
+    sunday:
+      required: true
+      selector: 
+        boolean:
+    monday:
+      required: true
+      selector: 
+        boolean:
+    tuesday:
+      required: true
+      selector: 
+        boolean:
+    wednesday:
+      required: true
+      selector: 
+        boolean:
+    thursday:
+      required: true
+      selector: 
+        boolean:
+    friday:
+      required: true
+      selector: 
+        boolean:
+    saturday:
+      required: true
+      selector: 
+        boolean:
+    start_time:
+      required: true
+      selector: 
+        time:
+    end_time:
+      required: true
+      selector: 
+        time:
+
+request_weekly_schedule:
+  name: "Request weekly schedule"
+  description: "Returns weekly schedule if set."
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi
+
+set_maximum_monthly_consumption:
+  name: "Set maximum monthly consumption"
+  description: "Limits maximum energy consumption on month basis."
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi
+    maximum_consumption:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 65535
+          step: 1
+          unit_of_measurement: "kWh"
+          mode: "box"
+
+set_maximum_session_consumption:
+  name: "Set maximum sessopm consumption"
+  description: "Limits maximum energy consumption on session basis."
+  fields:
+    device_id:
+      required: true
+      selector:
+        device:
+          integration: beny_wifi
+    maximum_consumption:
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 256
+          step: 1
+          unit_of_measurement: "kWh"
+          mode: "box"

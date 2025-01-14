@@ -41,6 +41,9 @@
         "total_kwh": {
           "name": "Total Energy"
         },
+        "maximum_session_consumption": {
+          "name": "Maximum Session Consumption"
+        },
         "timer_start": {
           "name": "Timer Start",
           "state": {
@@ -120,6 +123,52 @@
           }
         }
       },
+      "set_weekly_schedule": {
+        "name": "Set Schedule",
+        "description": "Sets charging schedule",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          },
+          "sunday": {
+            "name": "Sunday",
+            "description": "Toggle Sunday"
+          },
+          "monday": {
+            "name": "Monday",
+            "description": "Toggle Monday"
+          },
+          "tuesday": {
+            "name": "Tuesday",
+            "description": "Toggle Tuesday"
+          },
+          "wednesday": {
+            "name": "Wednesday",
+            "description": "Toggle Wednesday"
+          },
+          "thursday": {
+            "name": "Thursday",
+            "description": "Toggle Thursday"
+          },
+          "friday": {
+            "name": "Friday",
+            "description": "Toggle Friday"
+          },
+          "saturday": {
+            "name": "Saturday",
+            "description": "Toggle Saturday"
+          },
+          "start_time": {
+            "name": "Start time",
+            "description": "Time to start charging"
+          },
+          "end_time": {
+            "name": "End time",
+            "description": "Time to end charging"
+          }
+        }
+      },
       "reset_timer": {
         "name": "Reset timer",
         "description": "Resets charging timer",
@@ -127,6 +176,44 @@
           "device_id": {
             "name": "Charger",
             "description": "Target charger"
+          }
+        }
+      },
+      "request_weekly_schedule": {
+        "name": "Request weekly schedule",
+        "description": "Returns weekly schedule",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          }
+        }
+      },
+      "set_maximum_monthly_consumption": {
+        "name": "Set maximum monthly consumption",
+        "description": "Sets limit to maximum monthly consumption",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          },
+          "maximum_consumption": {
+            "name": "Maximum consumption",
+            "description": "Limit value for maximum monthly consumption"
+          }
+        }
+      },
+      "set_maximum_session_consumption": {
+        "name": "Set maximum session consumption",
+        "description": "Sets limit to maximum session consumption",
+        "fields": {
+          "device_id": {
+            "name": "Charger",
+            "description": "Target charger"
+          },
+          "maximum_consumption": {
+            "name": "Maximum consumption",
+            "description": "Limit value for maximum session consumption"
           }
         }
       }
