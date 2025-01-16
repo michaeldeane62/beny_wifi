@@ -1,98 +1,104 @@
-import pytest
+# tests/test_conversions.py
 from custom_components.beny_wifi.conversions import (
-    get_hex,
     convert_timer,
+    convert_schedule,
+    convert_weekdays_to_dict,
+    convert_weekdays_to_hex,
+    get_hex,
     get_message_type,
-    get_ip,
-    get_model,
+    get_model
 )
+
 from custom_components.beny_wifi.const import CLIENT_MESSAGE, SERVER_MESSAGE
 
-"""Test get_hex."""
-@pytest.mark.parametrize(
-    "data, expected",
-    [
-        (0, "00"),
-        (15, "0f"),
-        (255, "ff"),
-    ],
-)
-def test_get_hex(data, expected):
-    assert get_hex(data) == expected
-
-"""Test convert_timer."""
-@pytest.mark.parametrize(
-    "start_time_str, end_time_str, expected",
-    [
-        (
-            "08:00",
-            "10:30",
-            {"start_h": "08", "start_min": "00", "end_h": "0a", "end_min": "1e"},
-        ),
-        (
-            "00:00",
-            "23:59",
-            {"start_h": "00", "start_min": "00", "end_h": "17", "end_min": "3b"},
-        ),
-    ],
-)
-def test_convert_timer(start_time_str, end_time_str, expected):
-    assert convert_timer(start_time_str, end_time_str) == expected
-
-"""Test get_message_type."""
-@pytest.mark.parametrize(
-    "data, expected",
-    [
-        ("55aa10000b0000", CLIENT_MESSAGE.REQUEST_DATA),
-        ("55aa10001c0000", CLIENT_MESSAGE.SET_TIMER),
-        ("55aa10000c0000", CLIENT_MESSAGE.SEND_CHARGER_COMMAND),
-        ("55aa1000080000", SERVER_MESSAGE.SEND_ACK),
-        ("55aa1000230000", SERVER_MESSAGE.SEND_VALUES),
-        ("55aa1000110000", SERVER_MESSAGE.HANDSHAKE),
-        ("55aa1000200000", SERVER_MESSAGE.SEND_MODEL),
-        ("55aa1000ff0000", None),
-    ],
-)
-def test_get_message_type(data, expected, mocker):
-    # Mock the COMMON structure to ensure correct slicing for "message_id"
-    mock_common = mocker.patch("custom_components.beny_wifi.conversions.COMMON")
-    mock_common.FIXED_PART.value = {
-        "structure": {"message_id": slice(8, 10)}  # Adjusted based on input hex
+def test_convert_timer():
+    start_time = "08:00"
+    end_time = "10:30"
+    expected = {
+        "start_h": "08",
+        "start_min": "00",
+        "end_timer_set": "11111",
+        "end_h": "0a",
+        "end_min": "1e"
     }
+    assert convert_timer(start_time, end_time) == expected
+
+def test_convert_schedule():
+    weekdays = [True, False, True, False, True, False, True]
+    start_time = "09:00"
+    end_time = "11:00"
+    expected = {
+        "weekdays": "55",
+        "start_h": "09",
+        "start_min": "00",
+        "end_h": "0b",
+        "end_min": "00"
+    }
+    assert convert_schedule(weekdays, start_time, end_time) == expected
+
+def test_convert_weekdays_to_dict():
+    weekdays_hex = 0b1010101  # Binary representation
+    expected = {
+        "sunday": True,
+        "monday": False,
+        "tuesday": True,
+        "wednesday": False,
+        "thursday": True,
+        "friday": False,
+        "saturday": True,
+    }
+    assert convert_weekdays_to_dict(weekdays_hex) == expected
+
+def test_convert_weekdays_to_hex():
+    weekdays = [True, False, True, False, True, False, True]
+    expected = "55"  # Hex representation
+    assert convert_weekdays_to_hex(weekdays) == expected
+
+def test_convert_timer_defaults():
+    # Input with no end timer set
+    start_time = "9:30"
+    end_time = None
+
+    # Call the function with input missing end timer values
+    result = convert_timer(start_time, end_time)
+
+    # Assertions for default values
+    assert result["end_timer_set"] == "00000", "Default end_timer_set not set correctly"
+    assert result["end_h"] == get_hex(0), "Default end_h not set to '0' in hex format"
+    assert result["end_min"] == get_hex(0), "Default end_min not set to '0' in hex format"
+
+def test_get_message_type():
+    # Test CLIENT_MESSAGE
+    assert get_message_type("55aa10000b0000cb347089") == CLIENT_MESSAGE.REQUEST_DATA, "CLIENT_MESSAGE.REQUEST_DATA not returned for msg_int 11"
+    assert get_message_type("55aa10001c0000cb3469000028140001c200000000080000150921d9") == CLIENT_MESSAGE.SET_TIMER, "CLIENT_MESSAGE.SET_TIMER not returned for msg_int 28"
+    assert get_message_type("55aa10000c0000cb34060121") == CLIENT_MESSAGE.SEND_CHARGER_COMMAND, "CLIENT_MESSAGE.SEND_CHARGER_COMMAND not returned for msg_int 12"
     
-    result = get_message_type(data)
-    assert result == expected
+    # Test SERVER_MESSAGE
+    assert get_message_type("55aa100008690181") == SERVER_MESSAGE.SEND_ACK, "SERVER_MESSAGE.SEND_ACK not returned for msg_int 8"
+    assert get_message_type("55aa1000237000000000e600e800e6000000006102000000000000000f0000000003cb") == SERVER_MESSAGE.SEND_VALUES, "SERVER_MESSAGE.SEND_VALUES not returned for msg_int 35"
+    assert get_message_type("55aa100011030e5a7937c0a801220d05d8") == SERVER_MESSAGE.HANDSHAKE, "SERVER_MESSAGE.HANDSHAKE not returned for msg_int 17"
+    assert get_message_type("55aa1000200400014243502d4154314e2d4c00000000000000000000011a01df") == SERVER_MESSAGE.SEND_MODEL, "SERVER_MESSAGE.SEND_MODEL not returned for msg_int 32"
+    
+    # Test for invalid msg_int
+    assert get_message_type("55aafff0fff000000000e600e800e6000000006102000000000000000f0000000003cb") is None, "get_message_type should return None for unknown msg_int"
 
+def test_get_model():
+    # Test data with model value 'BCP-AT1N-L'
+    data = "0000000000000000000000000000000000000000000000004243502d4154314e2d4c0000000000000000000000000000000000000000"
+    expected_model = "BCP-AT1N-L"
+    assert get_model(data) == expected_model, f"Expected model 'BCP-AT1N-L' but got {get_model(data)}"
 
-"""Test get_ip."""
-@pytest.mark.parametrize(
-    "data, expected",
-    [
-        ("55aa10001103499602D2c0a80164", "192.168.1.100"),
-        ("55aa10001103499602D2c0a80001", "192.168.0.1"),
-    ],
-)
-def test_get_ip(data, expected, mocker):
-    # Mock SERVER_MESSAGE.HANDSHAKE structure for IP slicing
-    mock_server_message = mocker.patch("custom_components.beny_wifi.conversions.SERVER_MESSAGE")
-    mock_server_message.HANDSHAKE.value = {
-        "structure": {"ip": slice(20, 28, 2)}  # Adjust based on input data
-    }
+    # Test data with model value 'EV-CHARGER-001'
+    data = "00000000000000000000000000000000000000000000000045562d434841524745522d303031000000000000000000000000000000000000"
+    expected_model = "EV-CHARGER-001"
+    assert get_model(data) == expected_model, f"Expected model 'EV-CHARGER-001' but got {get_model(data)}"
+    
+    # Test data where model field is empty
+    data = "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    expected_model = ""
+    assert get_model(data) == expected_model, f"Expected empty model but got {get_model(data)}"
 
-    result = get_ip(data)
-    assert result == expected
-
-
-"""Test get_model."""
-@pytest.mark.parametrize(
-    "data, expected",
-    [
-        ("4243502d4154314e2d4c", "BCP-AT1N-L"),
-        ("414243", "ABC"),
-        ("3132333435", "12345"),
-    ],
-)
-def test_get_model(data, expected, mocker):
-    mock_send_model = mocker.patch("custom_components.beny_wifi.conversions.SERVER_MESSAGE")
-    mock_send_model.SEND_MODEL.value = {"structure": {"model": slice(0, len(data))}}
-    assert get_model(data) == expected
+    # Test data where model field has non-ASCII characters (to see how it's handled)
+    data = "0000000000000000000000000000000000000000000000004e6f6e2d4153434949204348504552"
+    expected_model = "Non-ASCII CHPE"  # This would depend on the actual data and its ASCII conversion
+    assert get_model(data) == expected_model, f"Expected model 'Non-ASCII CHPE' but got {get_model(data)}"

@@ -122,4 +122,3 @@ def build_message(message: SERVER_MESSAGE | CLIENT_MESSAGE, params: dict = {}) -
 
     checksum = calculate_checksum(msg)
     return msg.replace("[checksum]", f"{checksum:02x}")
-

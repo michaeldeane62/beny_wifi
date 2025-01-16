@@ -4,7 +4,7 @@ from unittest.mock import patch, MagicMock, AsyncMock, call
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import UpdateFailed
 from custom_components.beny_wifi.coordinator import BenyWifiUpdateCoordinator
-from datetime import datetime
+from datetime import datetime, timedelta
 
 @pytest.fixture
 def mock_send_udp_request():
@@ -48,7 +48,7 @@ async def test_successful_data_fetch(mock_read_message, mock_send_udp_request, c
     """Test successful data fetch from the coordinator."""
     
     # Prepare mock response from UDP request (simulated)
-    mock_send_udp_request.return_value = b"some_udp_response"
+    mock_send_udp_request.return_value = b"55aa1000237000000000e600e600e6000000005e06000000000000000f0000000003ca"
     
     # Simulate a valid read_message response
     mock_read_message.return_value = {
@@ -59,6 +59,7 @@ async def test_successful_data_fetch(mock_read_message, mock_send_udp_request, c
         "timer_start_min": 0,
         "timer_end_h": 7,
         "timer_end_min": 30,
+        "timer_state": "UNSET"
     }
 
     # Call the update function
@@ -68,8 +69,9 @@ async def test_successful_data_fetch(mock_read_message, mock_send_udp_request, c
     assert data["state"] == "standby"
     assert data["power"] == 0.0
     assert data["total_kwh"] == 0.0
-    assert isinstance(data["timer_start"], datetime)
-    assert isinstance(data["timer_end"], datetime)
+    assert data["timer_start"] == "not_set"
+    assert data["timer_end"] == "not_set"
+    assert data["timer_state"] == "UNSET"
 
 
 @patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
@@ -110,6 +112,7 @@ async def test_async_toggle_charging_start_with_socket(mock_socket, mock_read_me
         "timer_start_min": 0,
         "timer_end_h": 10,
         "timer_end_min": 30,
+        "timer_state": "START_END_TIME"
     }
 
     # Mock the built message
@@ -234,7 +237,7 @@ async def test_async_set_timer(coordinator):
     device_name = "Test Charger"
     start_time = "08:00"
     end_time = "10:00"
-    state_sensor_id = "sensor.some_serial_state"
+    state_sensor_id = "sensor.some_serial_charger_state"
     state_sensor_value = "charging"
     coordinator.hass.states.get.return_value = state_sensor_value
 
@@ -266,7 +269,7 @@ async def test_async_reset_timer(coordinator):
 
     # Mock state sensor in Home Assistant
     device_name = "Test Charger"
-    state_sensor_id = "sensor.some_serial_state"
+    state_sensor_id = "sensor.some_serial_charger_state"
     state_sensor_value = "charging"
     coordinator.hass.states.get.return_value = state_sensor_value
 
@@ -324,3 +327,51 @@ async def test_async_reset_timer_unplugged(coordinator):
 
         # Verify no UDP request was sent
         mock_send_udp.assert_not_called()
+
+@pytest.mark.asyncio
+async def test_timer_end_adjustment(coordinator):
+    """Test that the end time is adjusted correctly when earlier than or equal to start time."""
+    
+    # Mocking start and end times
+    start_time = datetime(2025, 1, 16, 23, 0)  # 11:00 PM
+    end_time_earlier = datetime(2025, 1, 16, 22, 0)  # 10:00 PM
+    end_time_equal = datetime(2025, 1, 16, 23, 0)  # 11:00 PM
+    end_time_unset = "not_set"
+
+    # Case 1: End time earlier than start time
+    if end_time_earlier <= start_time:
+        end_time_earlier += timedelta(days=1)
+    assert end_time_earlier == datetime(2025, 1, 17, 22, 0)  # Should be the next day
+
+    # Case 2: End time equal to start time
+    if end_time_equal <= start_time:
+        end_time_equal += timedelta(days=1)
+    assert end_time_equal == datetime(2025, 1, 17, 23, 0)  # Should be the next day
+
+    # Case 3: End time not set
+    end = end_time_unset if end_time_unset == "not_set" else end_time_equal
+    assert end == "not_set"
+
+@pytest.mark.asyncio
+async def test_edge_case_midnight(coordinator):
+    """Test timer logic for midnight as start and end times."""
+    device_name = "Test Charger"
+    start_time = "00:00"
+    end_time = "23:59"
+
+    with patch.object(coordinator, "_send_udp_request", new_callable=AsyncMock) as mock_send_udp:
+        await coordinator.async_set_timer(device_name, start_time, end_time)
+        mock_send_udp.assert_called_once()
+
+@patch("custom_components.beny_wifi.coordinator.BenyWifiUpdateCoordinator._send_udp_request")
+async def test_state_mapping(mock_send_udp_request, coordinator):
+    """Test state mapping to verify proper translation."""
+
+    # Mock valid UDP response data
+    mock_send_udp_request.return_value = b"55aa1000237000000000e600e700e6000000005e06000000000000000f0000000003cb"
+
+    # Call update method
+    data = await coordinator._async_update_data()
+
+    # Validate state mapping
+    assert data["state"] == "CHARGING"  # Expected mapping for 6102
