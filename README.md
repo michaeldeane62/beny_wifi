@@ -70,14 +70,18 @@ Currently, integration contains creates charger devices with following sensors:
 ### Actions
 
 Currently integration supports following actions:
+
+*Only when EV is plugged to charger:*
 - beny_wifi.start_charging (*device_id*)
 - beny_wifi.stop_charging (*device_id*)
 - beny_wifi.set_timer (*device_id | start time | end time*)
 - beny_wifi.reset_timer (*device_id*)
+- beny_wifi.set_maximum_session_consumption (*device_id | maximum_consumption*)
+
+*Any state:*
 - beny_wifi.request_weekly_schedule (*device_id*)
 - beny_wifi.set_weekly_schedule (*device_id | sunday | monday | tuesday | wednesday | thursday | friday | saturday | start time | end time)
 - beny_wifi.set_maximum_monthly_consumption (*device_id | maximum_consumption*)
-- beny_wifi.set_maximum_session_consumption (*device_id | maximum_consumption*)
 
 ### Roadmap
 
