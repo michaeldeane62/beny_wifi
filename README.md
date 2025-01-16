@@ -11,7 +11,7 @@
     <img alt="Version" src="https://img.shields.io/github/manifest-json/v/Jarauvi/beny_wifi?filename=custom_components%2Fbeny_wifi%2Fmanifest.json&label=Version">
 </div>
 
-⚠️*DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE WITH YOUR OWN RISK*
+⚠️*DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE AT YOUR OWN RISK*
 
 <div align="left">
     <img alt="Sensors" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/sensors.png?raw=true">
@@ -42,7 +42,7 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 - Restart Home Assistant
 
 **Manually**
-- Copy custom_components/beny_wifi folder of this repository as config/custom_components/beny_wifi folder in Home Assistant
+- Copy contents of custom_components/beny_wifi folder of this repository to config/custom_components/beny_wifi folder in Home Assistant
 
 **Configuration**
 - Find Beny Wifi integration under Settings > Devices & services
@@ -82,6 +82,4 @@ Currently integration supports following actions:
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
-- action to set max amps
 - map missing parameters as sensors (like outdoor temperature)
-- add integration to hacs
