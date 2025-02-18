@@ -67,10 +67,10 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Set unset state to both start and end time if timer is not set at all
             if data['timer_state'] == 'UNSET':
-                unset = "not_set"
-                start = unset
-                end = unset
-            else:
+                start = "not_set"
+                end = "not_set"
+            # if timer has START_TIME or START_END_TIME value
+            elif data['timer_state'] != 'END_TIME':
                 # Convert timer values to timestamps
                 now = utcnow()
                 start = now.replace(
@@ -96,6 +96,14 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 else:
                     # timer end is not set
                     end = "not_set"
+            else:
+                start = "not_set"
+
+                # Convert timer value to timestamp
+                now = utcnow()
+                end = now.replace(
+                    hour=data['timer_end_h'], minute=data['timer_end_min'], second=0, microsecond=0
+                )
 
             data['timer_start'] = start
             data['timer_end'] = end

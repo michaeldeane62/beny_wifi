@@ -81,6 +81,7 @@ class TIMER_STATE(Enum):
 
     UNSET = 0
     START_TIME = 1
+    END_TIME = 2
     START_END_TIME = 3
 
 class CHARGER_COMMAND(Enum):
