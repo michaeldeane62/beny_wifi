@@ -19,7 +19,7 @@
 
 This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers via Wifi. 
 
-Integration mimics ZBox phone app's communication with charger. All parameters and commands are not mapped yet, but assumption is that any charger communicating using ZBox app should work with integration.
+Integration mimics ZBox phone app's communication with charger. All parameters and commands are not mapped yet, but assumption is that any charger communicating with ZBox app should work with integration.
 
 ### Supported chargers
 
@@ -36,9 +36,9 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 **Using HACS**
 - Click three dots in the upper right corner of HACS.
 - From the menu, select Custom Repositories
-- Paste link to this repository to Repository field
+- Paste link of this repository to Repository field
 - Select "integration" to Type field
-- Find Beny Wifi from the list of integrations
+- Find and install Beny Wifi from the list of integrations
 - Restart Home Assistant
 
 **Manually**
@@ -46,11 +46,11 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 
 **Configuration**
 - Find Beny Wifi integration under Settings > Devices & services
-- Insert charger IP address. Related on model, port may have to be changed. Also scan interval of the sensors can be configured
+- Insert charger IP address. (Depending on model, also port may have to be changed?). Scan interval of the sensors can be configured to match your preference
 
 ### Sensors
 
-Currently, integration contains creates charger devices with following sensors:
+Currently, integration creates charger device with following sensors:
 
 | Sensor             | Unit            | Description                                                                   |
 | ------------------ | --------------- | ----------------------------------------------------------------------------- |
@@ -86,4 +86,4 @@ Currently integration supports following actions:
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
-- map missing parameters as sensors (like outdoor temperature)
+- map missing parameters as sensors (like internal device temperature)
