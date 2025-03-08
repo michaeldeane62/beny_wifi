@@ -157,11 +157,28 @@ def get_model(data: str) -> str:
 
     """
 
-    model_hex = data[SERVER_MESSAGE.SEND_MODEL.value["structure"]["model"]]  # This part seems to be the actual values
+    # Convert hex string to bytes
+    data = bytes.fromhex(data)
 
-    # Convert field values into more readable format (as ASCII if applicable)
-    return ''.join(
-        chr(int(model_hex[i:i+2], 16))
-        for i in range(0, len(model_hex), 2)
-        if 32 <= int(model_hex[i:i+2], 16) <= 126
-    ).strip()
+    # The header length appears to be fixed at 8 bytes (adjust if needed)
+    header_length = 8
+
+    # Start searching for the model name after the header
+    start_index = None
+    for i in range(header_length, len(data)):  # Start after header
+        if 32 <= data[i] <= 126:  # Printable ASCII range
+            start_index = i
+            break
+
+    if start_index is None:
+        return "Model name not found"
+
+    # Extract printable characters until a null byte (0x00) or non-ASCII character
+    model_bytes = []
+    for i in range(start_index, len(data)):
+        if i != start_index and data[i] == 0x00:  # Stop at the first null byte
+            break
+        model_bytes.append(data[i])
+
+    # Return ASCII string
+    return bytes(model_bytes).decode('ascii')
