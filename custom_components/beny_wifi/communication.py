@@ -1,3 +1,5 @@
+import logging  # noqa: D100
+
 from .const import (  # noqa: D100
     CHARGER_COMMAND,
     CHARGER_STATE,
@@ -16,6 +18,7 @@ from .conversions import (  # type: ignore  # noqa: PGH003
     get_model,
 )
 
+_LOGGER = logging.getLogger(__name__)
 
 def read_message(data, msg_type:str | None = None) -> dict:
     """Convert ascii hex string to dict.
@@ -100,6 +103,8 @@ def read_message(data, msg_type:str | None = None) -> dict:
     elif msg_type == CLIENT_MESSAGE.SET_TIMER:
         for param, pos in msg_type.value["structure"].items():
             msg[param] = int(data[pos], 16)
+
+    _LOGGER.debug(f"Message received: {data}={msg}")  # noqa: G004
 
     return msg
 

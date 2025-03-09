@@ -1,8 +1,8 @@
 """Constants for custom component."""
 from enum import Enum  # noqa: D100
 from typing import Final
-
 from homeassistant.const import Platform
+import logging
 
 PLATFORMS: Final = [Platform.SENSOR]
 
@@ -18,6 +18,8 @@ DEFAULT_PORT = 3333 # default listening port (at least for BCP-AT1N-L)
 
 CONF_IP = "ip_address"
 CONF_PORT = "port"
+
+_LOGGER = logging.getLogger(__name__)
 
 def calculate_checksum(data: str) -> int:
     """Calculate checksum of the message.
@@ -62,6 +64,9 @@ def validate_checksum(data: str) -> bool:
     """
     msg_checksum = get_checksum(data)
     calc_checksum = calculate_checksum(data)
+
+    if msg_checksum != calc_checksum:
+        _LOGGER.debug(f"Calculated checksum does not match: msg={msg_checksum} calc={calc_checksum} data={data}")  # noqa: G004
 
     return msg_checksum == calc_checksum
 
