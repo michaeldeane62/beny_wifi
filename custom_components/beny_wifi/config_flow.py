@@ -77,18 +77,23 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 sock.settimeout(5)
                 sock.sendto(request, (ip, port))
+                _LOGGER.debug(f"Sent model request to {ip}:{port}")  # noqa: G004
             except Exception:  # noqa: BLE001
                 self._errors["base"] = "cannot_connect"
+                _LOGGER.exception(f"Exception sending model request to {ip}:{port}")  # noqa: G004
                 return None
 
             try:
                 response, addr = sock.recvfrom(1024)
+                _LOGGER.debug(f"Model message received from {ip}:{port}")  # noqa: G004
                 sock.close()
                 response = response.decode('ascii')
                 data = read_message(response)
+                _LOGGER.debug(f"Model message data: {data}")  # noqa: G004
                 dev_data['model'] = data['model']
             except Exception:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
+                _LOGGER.exception(f"Exception receiving model data from {ip}:{port}")  # noqa: G004
                 return None
 
             try:
@@ -96,8 +101,11 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 sock.settimeout(5)
                 sock.sendto(request, (ip, port))
+                _LOGGER.debug(f"Sent serial number request to {ip}:{port}")  # noqa: G004
             except Exception:  # noqa: BLE001
                 self._errors["base"] = "cannot_connect"
+                _LOGGER.exception(f"Exception sending serial number request to {ip}:{port}")  # noqa: G004
+
 
             try:
                 response, addr = sock.recvfrom(1024)
@@ -105,8 +113,10 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 response = response.decode('ascii')
                 data = read_message(response)
                 dev_data['serial_number'] = data['serial']
+                _LOGGER.debug(f"Serial number message data: {data}")  # noqa: G004
             except Exception:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
+                _LOGGER.exception(f"Exception receiving serial number data from {ip}:{port}")  # noqa: G004
                 return None
 
             return dev_data  # noqa: TRY300
