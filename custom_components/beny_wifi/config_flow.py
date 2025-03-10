@@ -78,9 +78,9 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sock.settimeout(5)
                 sock.sendto(request, (ip, port))
                 _LOGGER.debug(f"Sent model request to {ip}:{port}")  # noqa: G004
-            except Exception:  # noqa: BLE001
+            except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_connect"
-                _LOGGER.exception(f"Exception sending model request to {ip}:{port}")  # noqa: G004
+                _LOGGER.exception(f"Exception sending model request to {ip}:{port}. Cause: {ex}. Request: {request}")  # noqa: G004, TRY401
                 return None
 
             try:
@@ -91,9 +91,9 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data = read_message(response)
                 _LOGGER.debug(f"Model message data: {data}")  # noqa: G004
                 dev_data['model'] = data['model']
-            except Exception:  # noqa: BLE001
+            except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception(f"Exception receiving model data from {ip}:{port}")  # noqa: G004
+                _LOGGER.exception(f"Exception receiving model data from {ip}:{port}. Cause: {ex}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
                 return None
 
             try:
@@ -102,9 +102,9 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sock.settimeout(5)
                 sock.sendto(request, (ip, port))
                 _LOGGER.debug(f"Sent serial number request to {ip}:{port}")  # noqa: G004
-            except Exception:  # noqa: BLE001
+            except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_connect"
-                _LOGGER.exception(f"Exception sending serial number request to {ip}:{port}")  # noqa: G004
+                _LOGGER.exception(f"Exception sending serial number request to {ip}:{port}. Cause: {ex}. Request: {request}")  # noqa: G004, TRY401
 
 
             try:
@@ -114,9 +114,9 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data = read_message(response)
                 dev_data['serial_number'] = data['serial']
                 _LOGGER.debug(f"Serial number message data: {data}")  # noqa: G004
-            except Exception:  # noqa: BLE001
+            except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception(f"Exception receiving serial number data from {ip}:{port}")  # noqa: G004
+                _LOGGER.exception(f"Exception receiving serial number data from {ip}:{port}. Cause: {ex}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
                 return None
 
             return dev_data  # noqa: TRY300

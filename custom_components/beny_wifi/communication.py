@@ -126,4 +126,8 @@ def build_message(message: SERVER_MESSAGE | CLIENT_MESSAGE, params: dict = {}) -
             msg = msg.replace("[" + param + "]", val)
 
     checksum = calculate_checksum(msg)
-    return msg.replace("[checksum]", f"{checksum:02x}")
+
+    msg = msg.replace("[checksum]", f"{checksum:02x}")
+    _LOGGER.debug(f"Message sent. Type: {message.name}. Content: {msg!s}={params}")  # noqa: G004
+
+    return msg
