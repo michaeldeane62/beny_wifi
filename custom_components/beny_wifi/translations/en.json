@@ -72,8 +72,8 @@
       },
       "error": {
         "device_already_configured": "This device is already configured.",
-        "cannot_communicate": "Could not communicate with the device",
-        "cannot_connect": "Cannot connect to the device. Please check the IP address and port."
+        "cannot_communicate": "Could not communicate with the device. See log for details.",
+        "cannot_connect": "Cannot connect to the device. See log for details"
       }
     },
     "options": {

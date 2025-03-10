@@ -72,8 +72,8 @@
       },
       "error": {
         "device_already_configured": "Laite on jo lisätty.",
-        "cannot_communicate": "Laitteen kanssa kommunikointi epäonnistui",
-        "cannot_connect": "Laitteeseen ei voida yhdistää. Tarkasta IP-osoite ja portti."
+        "cannot_communicate": "Laitteen kanssa kommunikointi epäonnistui. (Katso loki-tiedosto)",
+        "cannot_connect": "Laitteeseen ei voida yhdistää. Tarkasta IP-osoite ja portti. (Katso loki-tiedosto)"
       }
     },
     "options": {
