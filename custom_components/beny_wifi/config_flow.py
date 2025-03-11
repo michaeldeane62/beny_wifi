@@ -45,7 +45,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if dev_data is not None:
 
                 if not await self._device_exists(dev_data["serial_number"]):
-                    user_input[MODEL] = dev_data["model"]
+                    user_input[MODEL] = dev_data.get("model", "Charger")
                     user_input[SERIAL] = dev_data["serial_number"]
                     return self.async_create_entry(title="Beny Wifi", data=user_input)
 
