@@ -90,7 +90,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 response = response.decode('ascii')
                 data = read_message(response)
                 _LOGGER.debug(f"Model message data: {data}")  # noqa: G004
-                dev_data['model'] = data['model']
+                dev_data['model'] = data.get("model", "Charger")
             except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
                 _LOGGER.exception(f"Exception receiving model data from {ip}:{port}. Cause: {ex}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
@@ -112,7 +112,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 sock.close()
                 response = response.decode('ascii')
                 data = read_message(response)
-                dev_data['serial_number'] = data['serial']
+                dev_data['serial_number'] = data.get('serial', '12345678')
                 _LOGGER.debug(f"Serial number message data: {data}")  # noqa: G004
             except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
