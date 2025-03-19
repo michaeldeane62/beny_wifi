@@ -139,7 +139,6 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         self._errors["base"] = "no_response_timeout"
                         break
 
-                _LOGGER.debug(f"Serial number message data: {data}")  # noqa: G004
             except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
                 _LOGGER.exception(f"Exception receiving device handshake data by broadcast {'255.255.255.255'}:{port}. Cause: {ex}")  # noqa: G004, TRY401
