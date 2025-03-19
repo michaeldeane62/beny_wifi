@@ -64,7 +64,7 @@
           "title": "Lisää latausasema",
           "description": "Beny Wifi integraation konfigurointi.",
           "data": {
-            "ip_address": "IP-osoite",
+            "ip_address": "IP-osoite (jos laite ei löydy sarjanumerolla)",
             "port": "Portti",
             "serial": "Sarjanumero",
             "pin": "PIN-koodi",

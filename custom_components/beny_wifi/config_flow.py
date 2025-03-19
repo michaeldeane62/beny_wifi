@@ -15,10 +15,10 @@ from .const import (
     CONF_SERIAL,
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
-    PORT,
-    IP_ADDRESS,
     DOMAIN,
+    IP_ADDRESS,
     MODEL,
+    PORT,
     REQUEST_TYPE,
     SCAN_INTERVAL,
     SERIAL,
@@ -55,11 +55,14 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if len(user_input[CONF_SERIAL]) != 9:
                 self._errors["base"] = "serial_length_invalid"
 
+            if IP_ADDRESS not in user_input:
+                user_input[IP_ADDRESS] = None
+
             user_input[CONF_PIN] = convert_pin_to_hex(user_input[CONF_PIN])
 
             if "base" not in self._errors or self._errors["base"] is None:
 
-                dev_data = await self._poll_devices(user_input[CONF_SERIAL], user_input[CONF_PIN], user_input[PORT])
+                dev_data = await self._poll_devices(user_input[CONF_SERIAL], user_input[CONF_PIN], user_input[IP_ADDRESS], user_input[PORT])
                 if dev_data is not None:
 
                     if not await self._device_exists(dev_data["serial_number"]):
@@ -76,6 +79,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             data_schema=vol.Schema(
                 {
                     vol.Required(PORT, default=DEFAULT_PORT): int,
+                    vol.Optional(IP_ADDRESS): str,
                     vol.Required(CONF_SERIAL): str,
                     vol.Required(CONF_PIN): str,
                     vol.Optional(SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
@@ -89,10 +93,11 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         device_registry = async_get_device_registry(self.hass)
         return any(device.serial_number == serial_number for device in device_registry.devices.values())
 
-    async def _poll_devices(self, serial, pin, port) -> dict | None:
+    async def _poll_devices(self, serial, pin, ip, port) -> dict | None:
         """Check is device andswers to broadcast."""
         def sync_socket_communication():
             dev_data = {
+                "ip_address": ip,
                 "pin": pin,
                 "serial": convert_serial_to_hex(serial)
             }
@@ -132,7 +137,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     except TimeoutError:
                         _LOGGER.warning("UDP broadcast timed out, no response received")
                         self._errors["base"] = "no_response_timeout"
-                        return None
+                        break
 
                 _LOGGER.debug(f"Serial number message data: {data}")  # noqa: G004
             except Exception as ex:  # noqa: BLE001
@@ -142,12 +147,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
             if dev_data['ip_address'] is None:
                 self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception(f"Did not receive ip by broadcast {'255.255.255.255'}:{port}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
-                return None
-
-            if dev_data['port'] is None:
-                self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception(f"Did not receive port by broadcast {'255.255.255.255'}:{port}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
+                _LOGGER.exception("Device IP not known")  # noqa: G004, TRY401
                 return None
 
             try:

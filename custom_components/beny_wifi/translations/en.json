@@ -64,7 +64,7 @@
           "title": "Configure Beny Charger",
           "description": "Set up Beny Wifi integration.",
           "data": {
-            "ip_address": "IP Address",
+            "ip_address": "IP Address (if not found by serial)",
             "port": "Port",
             "serial": "Serial number",
             "pin": "PIN number",
