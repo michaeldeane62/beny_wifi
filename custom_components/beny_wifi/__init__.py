@@ -6,7 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import CONF_IP, CONF_PORT, DOMAIN, PLATFORMS, SCAN_INTERVAL
+from .const import IP_ADDRESS, PORT, DOMAIN, PLATFORMS, SCAN_INTERVAL
 from .coordinator import BenyWifiUpdateCoordinator
 from .services import async_setup_services
 
@@ -16,8 +16,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up Beny Wifi from a config entry."""
     _LOGGER.info("Setting up Beny WiFi integration")
 
-    ip_address = entry.data[CONF_IP]
-    port = entry.data[CONF_PORT]
+    ip_address = entry.data[IP_ADDRESS]
+    port = entry.data[PORT]
     scan_interval = entry.data[SCAN_INTERVAL]
 
     # Create the DataUpdateCoordinator

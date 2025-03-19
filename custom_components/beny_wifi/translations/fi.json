@@ -66,6 +66,8 @@
           "data": {
             "ip_address": "IP-osoite",
             "port": "Portti",
+            "serial": "Sarjanumero",
+            "pin": "PIN-koodi",
             "update_interval": "Päivitysväli"
           }
         }
@@ -73,7 +75,12 @@
       "error": {
         "device_already_configured": "Laite on jo lisätty.",
         "cannot_communicate": "Laitteen kanssa kommunikointi epäonnistui. (Katso loki-tiedosto)",
-        "cannot_connect": "Laitteeseen ei voida yhdistää. Tarkasta IP-osoite ja portti. (Katso loki-tiedosto)"
+        "cannot_connect": "Laitteeseen ei voida yhdistää. Tarkasta IP-osoite ja portti. (Katso loki-tiedosto)",
+        "pin_not_numeric": "Pin-koodin tulee olla numeerinen",
+        "pin_length_invalid": "Pin-koodin tulee olla 6 merkkiä pitkä",
+        "serial_not_numeric": "Sarjanumeron tulee olla numeerinen",
+        "serial_length_invalid": "Sarjanumeron tulee olla 9 merkkiä pitkä",
+        "no_response_timeout": "Laite ei vastannut. Tarkasta sarjanumero ja pin-koodi"
       }
     },
     "options": {

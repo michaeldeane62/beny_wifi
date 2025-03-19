@@ -16,8 +16,10 @@ SCAN_INTERVAL: Final = "update_interval"
 DEFAULT_SCAN_INTERVAL: Final = 30
 DEFAULT_PORT = 3333 # default listening port (at least for BCP-AT1N-L)
 
-CONF_IP = "ip_address"
-CONF_PORT = "port"
+IP_ADDRESS = "ip_address"
+PORT = "port"
+CONF_SERIAL = "serial"
+CONF_PIN = "pin"
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -119,27 +121,33 @@ class CLIENT_MESSAGE(Enum):
 
     POLL_DEVICES = {
         "description": "Send broadcast to 255.255.255.255 and wait for answers",
-        "hex": "55aa10000f0000cb34030e5a7937[checksum]",
-        "structure": {}
+        "hex": "55aa03000f000[pin]03[serial][checksum]",
+        "structure": {
+            "pin": slice(13,18),
+            "serial": slice(20,28)
+        }
     }
     REQUEST_DATA = {
         "description": "Update request 1",
-        "hex": "55aa10000b0000cb34[request_type][checksum]",
+        "hex": "55aa10000b000[pin][request_type][checksum]",
         "structure": {
+            "pin": slice(13,18),
             "request_type": slice(18, 20)
         }
     }
     SEND_CHARGER_COMMAND = {
         "description": "Start or stop charging",
-        "hex": "55aa10000c0000cb3406[charger_command][checksum]",
+        "hex": "55aa10000c000[pin]06[charger_command][checksum]",
         "structure": {
+            "pin": slice(13,18),
             "charger_command": slice(21, 22)
         }
     }
     SET_TIMER = {
         "description": "Set timer",
-        "hex": "55aa10001c0000cb346900016008000[end_timer_set][start_h][start_min]00[end_h][end_min]0017153b[checksum]",
+        "hex": "55aa10001c000[pin]6900016008000[end_timer_set][start_h][start_min]00[end_h][end_min]0017153b[checksum]",
         "structure": {
+            "pin": slice(13,18),
             "start_h": slice(35, 38),
             "start_min": slice(38, 40),
             "end_h": slice(42, 44),
@@ -149,17 +157,23 @@ class CLIENT_MESSAGE(Enum):
     }
     RESET_TIMER = {
         "description": "Reset timer",
-        "hex": "55aa10001c0000cb34690000000000000000000000000000171035[checksum]",
-        "structure": {}
+        "hex": "55aa10001c000[pin]690000000000000000000000000000171035[checksum]",
+        "structure": {
+            "pin": slice(13,18)
+        }
     }
     REQUEST_SETTINGS = {
         "description": "Request settings",
-        "hex": "55aa10000b0000cb3471[checksum]"
+        "hex": "55aa10000b000[pin]71[checksum]",
+        "structure": {
+            "pin": slice(13,18)
+        }
     }
     SET_SCHEDULE = {
         "description": "Set schedule",
-        "hex": "55aa1000160000cb347519010e0f2725[weekdays][start_h][start_min][end_h][end_min][checksum]",
+        "hex": "55aa100016000[pin]7519010e0f2725[weekdays][start_h][start_min][end_h][end_min][checksum]",
         "structure": {
+            "pin": slice(13,18),
             "weekdays": slice(32, 34),
             "start_h": slice(34, 36),
             "start_min": slice(36, 38),
@@ -169,15 +183,17 @@ class CLIENT_MESSAGE(Enum):
     }
     SET_MAX_MONTHLY_CONSUMPTION = {
         "description": "Set maximum monthly consumption",
-        "hex": "55aa10000d0000cb3478[maximum_consumption][checksum]",
+        "hex": "55aa10000d000[pin]78[maximum_consumption][checksum]",
         "structure": {
+            "pin": slice(13,18),
             "maximum_consumption": slice(20, 24)
         }
     }
     SET_MAX_SESSION_CONSUMPTION = {
         "description": "Set maximum session consumption",
-        "hex": "55aa10000c0000cb3474[maximum_consumption][checksum]",
+        "hex": "55aa10000c000[pin]74[maximum_consumption][checksum]",
         "structure": {
+            "pin": slice(13,18),
             "maximum_consumption": slice(20, 22)
         }
     }
@@ -185,8 +201,10 @@ class CLIENT_MESSAGE(Enum):
     # DO NOT USE, UNCONFIRMED PARAMETERS
     SET_VALUES = {
         "description": "Send setting values to charger",
-        "hex": "55aa10000d0000cb346d00[max_amps][checksum]",
-        "structure": {}
+        "hex": "55aa10000d000[pin]6d00[max_amps][checksum]",
+        "structure": {
+            "pin": slice(13,18)
+        }
     }
 
 class SERVER_MESSAGE(Enum):
@@ -230,8 +248,8 @@ class SERVER_MESSAGE(Enum):
             "maximum_session_consumption": slice(58, 60)
         }
     }
-    SEND_ACK = {
-        "description": "Acknowledge command",
+    ACCESS_DENIED = {
+        "description": "Access denied message",
         "structure": {}
     }
 

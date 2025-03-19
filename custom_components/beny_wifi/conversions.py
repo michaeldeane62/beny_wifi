@@ -100,6 +100,32 @@ def convert_weekdays_to_hex(weekdays: list[bool]):
     bin_val = ''.join(['1' if day else '0' for day in weekdays])
     return f"{int(bin_val, 2):02x}"
 
+def convert_serial_to_hex(serial_number: int) -> str:
+    """Convert serial number to hex.
+
+    Args:
+        serial_number (int): 9 digit serial number
+
+    Returns:
+        str: serial number as hex
+
+    """
+
+    return f"{int(serial_number):08X}".lower()
+
+def convert_pin_to_hex(pin: int) -> str:
+    """Convert pin to hex.
+
+    Args:
+        pin (int): 6 digit pin
+
+    Returns:
+        str: pin as hex
+
+    """
+
+    return f"{int(pin):05X}".lower()
+
 def get_message_type(data: str) -> CLIENT_MESSAGE | SERVER_MESSAGE:
     """Get message structure by id.
 
@@ -120,7 +146,7 @@ def get_message_type(data: str) -> CLIENT_MESSAGE | SERVER_MESSAGE:
         return CLIENT_MESSAGE.SEND_CHARGER_COMMAND
 
     if msg_int == 8:
-        return SERVER_MESSAGE.SEND_ACK
+        return SERVER_MESSAGE.ACCESS_DENIED
     if msg_int == 35:
         return SERVER_MESSAGE.SEND_VALUES
     if msg_int == 17:

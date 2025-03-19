@@ -17,6 +17,7 @@ from .const import (
     DOMAIN,
     REQUEST_TYPE,
     SERIAL,
+    CONF_PIN
 )
 from .conversions import convert_schedule, convert_timer, get_hex
 
@@ -54,7 +55,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Build the request message
             request = build_message(
                 CLIENT_MESSAGE.REQUEST_DATA,
-                {"request_type": get_hex(REQUEST_TYPE.VALUES.value)}
+                {"pin": self.config_entry.data[CONF_PIN], "request_type": get_hex(REQUEST_TYPE.VALUES.value)}
             ).encode('ascii')
 
             # Send UDP request asynchronously
@@ -64,6 +65,12 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             # Decode and parse the response
             response = response.decode('ascii')
             data = read_message(response)
+
+            if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
+                self._errors["base"] = "access_denied"
+                _LOGGER.exception("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: G004, TRY401
+                raise UpdateFailed("Device denied request. Please reconfigure integration if your pin has changed")
+                return None
 
             # Set unset state to both start and end time if timer is not set at all
             if data['timer_state'] == 'UNSET':
@@ -145,12 +152,12 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             if command == "start":
                 request = build_message(
                     CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
-                    {"charger_command": get_hex(CHARGER_COMMAND.START.value)}
+                    {"pin": self.config_entry.data[CONF_PIN], "charger_command": get_hex(CHARGER_COMMAND.START.value)}
                 ).encode('ascii')
             elif command == "stop":
                 request = build_message(
                     CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
-                    {"charger_command": get_hex(CHARGER_COMMAND.STOP.value)}
+                    {"pin": self.config_entry.data[CONF_PIN], "charger_command": get_hex(CHARGER_COMMAND.STOP.value)}
                 ).encode('ascii')
 
             self._send_udp_request(request)
@@ -159,7 +166,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def async_set_max_monthly_consumption(self, device_name: str, maximum_consumption: int):
         """Set maximum consumption."""
 
-        request = build_message(CLIENT_MESSAGE.SET_MAX_MONTHLY_CONSUMPTION, {"maximum_consumption": get_hex(maximum_consumption, 4)}).encode('ascii')
+        request = build_message(CLIENT_MESSAGE.SET_MAX_MONTHLY_CONSUMPTION, {"pin": self.config_entry.data[CONF_PIN], "maximum_consumption": get_hex(maximum_consumption, 4)}).encode('ascii')
         self._send_udp_request(request)
 
         _LOGGER.info(f"{device_name}: maximum consumption set")  # noqa: G004
@@ -167,7 +174,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     async def async_set_max_session_consumption(self, device_name: str, maximum_consumption: int):
         """Set maximum consumption."""
 
-        request = build_message(CLIENT_MESSAGE.SET_MAX_SESSION_CONSUMPTION, {"maximum_consumption": get_hex(maximum_consumption)}).encode('ascii')
+        request = build_message(CLIENT_MESSAGE.SET_MAX_SESSION_CONSUMPTION, {"pin": self.config_entry.data[CONF_PIN], "maximum_consumption": get_hex(maximum_consumption)}).encode('ascii')
         self._send_udp_request(request)
 
         _LOGGER.info(f"{device_name}: maximum consumption set")  # noqa: G004
@@ -180,15 +187,18 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         state_sensor_value = self.hass.states.get(state_sensor_id)
 
         if state_sensor_value and state_sensor_value != CHARGER_STATE.UNPLUGGED.name.lower():
-            request = build_message(CLIENT_MESSAGE.SET_TIMER, convert_timer(start_time, end_time)).encode('ascii')
+            timer_data = convert_timer(start_time, end_time)
+            timer_data['pin'] = self.config_entry.data[CONF_PIN]
+            request = build_message(CLIENT_MESSAGE.SET_TIMER, timer_data).encode('ascii')
             self._send_udp_request(request)
 
             _LOGGER.info(f"{device_name}: charging timer set")  # noqa: G004
 
     async def async_set_schedule(self, device_name: str, weekdays: list[bool], start_time: str, end_time: str):
         """Set charging timer."""
-
-        request = build_message(CLIENT_MESSAGE.SET_SCHEDULE, convert_schedule(reversed(weekdays), start_time, end_time)).encode('ascii')
+        schedule_data = convert_schedule(reversed(weekdays), start_time, end_time)
+        schedule_data['pin'] = self.config_entry.data[CONF_PIN]
+        request = build_message(CLIENT_MESSAGE.SET_SCHEDULE, schedule_data).encode('ascii')
         self._send_udp_request(request)
 
         _LOGGER.info(f"{device_name}: charging schedule set")  # noqa: G004
@@ -201,14 +211,14 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         state_sensor_value = self.hass.states.get(state_sensor_id)
 
         if state_sensor_value and state_sensor_value != CHARGER_STATE.UNPLUGGED.name.lower():
-            request = build_message(CLIENT_MESSAGE.RESET_TIMER).encode('ascii')
+            request = build_message(CLIENT_MESSAGE.RESET_TIMER, {"pin": self.config_entry.data[CONF_PIN]}).encode('ascii')
             self._send_udp_request(request)
             _LOGGER.info(f"{device_name}: charging timer reset")  # noqa: G004
 
     async def async_request_weekly_schedule(self, device_name: str):
         """Get set weekly schedule from charger."""
 
-        request = build_message(CLIENT_MESSAGE.REQUEST_SETTINGS).encode('ascii')
+        request = build_message(CLIENT_MESSAGE.REQUEST_SETTINGS, {"pin": self.config_entry.data[CONF_PIN]}).encode('ascii')
         response = self._send_udp_request(request)
         # Decode and parse the response
         response = response.decode('ascii')

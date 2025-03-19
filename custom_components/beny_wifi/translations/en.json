@@ -66,6 +66,8 @@
           "data": {
             "ip_address": "IP Address",
             "port": "Port",
+            "serial": "Serial number",
+            "pin": "PIN number",
             "update_interval": "Update interval"
           }
         }
@@ -73,7 +75,12 @@
       "error": {
         "device_already_configured": "This device is already configured.",
         "cannot_communicate": "Could not communicate with the device. See log for details.",
-        "cannot_connect": "Cannot connect to the device. See log for details"
+        "cannot_connect": "Cannot connect to the device. See log for details",
+        "pin_not_numeric": "Pin code should be numeric",
+        "pin_length_invalid": "Pin code should be 6 characters long",
+        "serial_not_numeric": "Serial number should be numeric",
+        "serial_length_invalid": "Serial number should be 9 characters long",
+        "no_response_timeout": "No response from the device. Check serial and pin code"
       }
     },
     "options": {
