@@ -136,7 +136,6 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                     except TimeoutError:
                         _LOGGER.warning("UDP broadcast timed out, no response received")
-                        self._errors["base"] = "no_response_timeout"
                         break
 
             except Exception as ex:  # noqa: BLE001
