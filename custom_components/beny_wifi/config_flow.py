@@ -11,17 +11,19 @@ from homeassistant.helpers.device_registry import async_get as async_get_device_
 from .communication import build_message, read_message
 from .const import (
     CLIENT_MESSAGE,
-    CONF_IP,
-    CONF_PORT,
+    CONF_PIN,
+    CONF_SERIAL,
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
+    PORT,
+    IP_ADDRESS,
     DOMAIN,
     MODEL,
     REQUEST_TYPE,
     SCAN_INTERVAL,
     SERIAL,
 )
-from .conversions import get_hex
+from .conversions import convert_pin_to_hex, convert_serial_to_hex, get_hex
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,22 +43,41 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         self._errors = {}
 
         if user_input is not None:
-            dev_data = await self._test_device(user_input[CONF_IP], user_input[CONF_PORT])
-            if dev_data is not None:
+            if not user_input[CONF_PIN].isdigit():
+                self._errors["base"] = "pin_not_numeric"
 
-                if not await self._device_exists(dev_data["serial_number"]):
-                    user_input[MODEL] = dev_data.get("model", "Charger")
-                    user_input[SERIAL] = dev_data["serial_number"]
-                    return self.async_create_entry(title="Beny Wifi", data=user_input)
+            if len(user_input[CONF_PIN]) != 6:
+                self._errors["base"] = "pin_length_invalid"
 
-                self._errors["base"] = "device_already_configured"
+            if not user_input[CONF_SERIAL].isdigit():
+                self._errors["base"] = "serial_not_numeric"
+
+            if len(user_input[CONF_SERIAL]) != 9:
+                self._errors["base"] = "serial_length_invalid"
+
+            user_input[CONF_PIN] = convert_pin_to_hex(user_input[CONF_PIN])
+
+            if "base" not in self._errors or self._errors["base"] is None:
+
+                dev_data = await self._poll_devices(user_input[CONF_SERIAL], user_input[CONF_PIN], user_input[PORT])
+                if dev_data is not None:
+
+                    if not await self._device_exists(dev_data["serial_number"]):
+                        user_input[IP_ADDRESS] = dev_data["ip_address"]
+                        user_input[PORT] = dev_data["port"]
+                        user_input[MODEL] = dev_data.get("model", "Charger")
+                        user_input[SERIAL] = dev_data["serial_number"]
+                        return self.async_create_entry(title="Beny Wifi", data=user_input)
+
+                    self._errors["base"] = "device_already_configured"
 
         return self.async_show_form(
             step_id="user",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_IP): str,
-                    vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
+                    vol.Required(PORT, default=DEFAULT_PORT): int,
+                    vol.Required(CONF_SERIAL): str,
+                    vol.Required(CONF_PIN): str,
                     vol.Optional(SCAN_INTERVAL, default=DEFAULT_SCAN_INTERVAL): int,
                 }
             ),
@@ -68,24 +89,81 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         device_registry = async_get_device_registry(self.hass)
         return any(device.serial_number == serial_number for device in device_registry.devices.values())
 
-    async def _test_device(self, ip, port) -> dict | None:
-        """Check is model can be retrieved from device."""
+    async def _poll_devices(self, serial, pin, port) -> dict | None:
+        """Check is device andswers to broadcast."""
         def sync_socket_communication():
+            dev_data = {
+                "pin": pin,
+                "serial": convert_serial_to_hex(serial)
+            }
+
+            request = build_message(
+                CLIENT_MESSAGE.POLL_DEVICES,
+                {"pin": dev_data["pin"], "serial": dev_data["serial"]}
+            ).encode('ascii')
+
             try:
-                dev_data = {}
-                request = build_message(CLIENT_MESSAGE.REQUEST_DATA, {"request_type": get_hex(REQUEST_TYPE.MODEL.value)}).encode('ascii')
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
+                sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+                sock.settimeout(5)
+
+                sock.bind(('0.0.0.0', 0))
+                sock.sendto(request, ('255.255.255.255', port))
+                _LOGGER.debug(f"Broadcast request to {'255.255.255.255'}:{port}")  # noqa: G004
+
+                while True:
+                    try:
+                        response, addr = sock.recvfrom(1024)
+                        sock.close()
+
+                        response = response.decode('ascii')
+                        data = read_message(response)
+
+                        if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
+                            self._errors["base"] = "access_denied"
+                            _LOGGER.exception("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: G004, TRY401
+                            return None
+
+                        dev_data['serial_number'] = data.get('serial', '12345678')
+                        dev_data['ip_address'] = data.get('ip', None)
+                        dev_data['port'] = data.get('port', None)
+                        break
+
+                    except TimeoutError:
+                        _LOGGER.warning("UDP broadcast timed out, no response received")
+                        self._errors["base"] = "no_response_timeout"
+                        return None
+
+                _LOGGER.debug(f"Serial number message data: {data}")  # noqa: G004
+            except Exception as ex:  # noqa: BLE001
+                self._errors["base"] = "cannot_communicate"
+                _LOGGER.exception(f"Exception receiving device handshake data by broadcast {'255.255.255.255'}:{port}. Cause: {ex}")  # noqa: G004, TRY401
+                return None
+
+            if dev_data['ip_address'] is None:
+                self._errors["base"] = "cannot_communicate"
+                _LOGGER.exception(f"Did not receive ip by broadcast {'255.255.255.255'}:{port}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
+                return None
+
+            if dev_data['port'] is None:
+                self._errors["base"] = "cannot_communicate"
+                _LOGGER.exception(f"Did not receive port by broadcast {'255.255.255.255'}:{port}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
+                return None
+
+            try:
+                request = build_message(CLIENT_MESSAGE.REQUEST_DATA, {"pin": dev_data["pin"], "request_type": get_hex(REQUEST_TYPE.MODEL.value)}).encode('ascii')
                 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 sock.settimeout(5)
-                sock.sendto(request, (ip, port))
-                _LOGGER.debug(f"Sent model request to {ip}:{port}")  # noqa: G004
+                sock.sendto(request, (dev_data['ip_address'], dev_data['port']))
+                _LOGGER.debug(f"Sent model request to {dev_data['ip_address']}:{dev_data['port']}")  # noqa: G004
             except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_connect"
-                _LOGGER.exception(f"Exception sending model request to {ip}:{port}. Cause: {ex}. Request: {request}")  # noqa: G004, TRY401
+                _LOGGER.exception(f"Exception sending model request to {dev_data['ip_address']}:{dev_data['port']}. Cause: {ex}. Request: {request}")  # noqa: G004, TRY401
                 return None
 
             try:
                 response, addr = sock.recvfrom(1024)
-                _LOGGER.debug(f"Model message received from {ip}:{port}")  # noqa: G004
+                _LOGGER.debug(f"Model message received from {dev_data['ip_address']}:{dev_data['port']}")  # noqa: G004
                 sock.close()
                 response = response.decode('ascii')
                 data = read_message(response)
@@ -93,30 +171,7 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 dev_data['model'] = data.get("model", "Charger")
             except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception(f"Exception receiving model data from {ip}:{port}. Cause: {ex}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
-                return None
-
-            try:
-                request = build_message(CLIENT_MESSAGE.POLL_DEVICES).encode('ascii')
-                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                sock.settimeout(5)
-                sock.sendto(request, (ip, port))
-                _LOGGER.debug(f"Sent serial number request to {ip}:{port}")  # noqa: G004
-            except Exception as ex:  # noqa: BLE001
-                self._errors["base"] = "cannot_connect"
-                _LOGGER.exception(f"Exception sending serial number request to {ip}:{port}. Cause: {ex}. Request: {request}")  # noqa: G004, TRY401
-
-
-            try:
-                response, addr = sock.recvfrom(1024)
-                sock.close()
-                response = response.decode('ascii')
-                data = read_message(response)
-                dev_data['serial_number'] = data.get('serial', '12345678')
-                _LOGGER.debug(f"Serial number message data: {data}")  # noqa: G004
-            except Exception as ex:  # noqa: BLE001
-                self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception(f"Exception receiving serial number data from {ip}:{port}. Cause: {ex}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
+                _LOGGER.exception(f"Exception receiving model data from {dev_data['ip_address']}:{dev_data['port']}. Cause: {ex}. Request hex: {request}. Response hex: {response}. Translated response: {data}")  # noqa: G004, TRY401
                 return None
 
             return dev_data  # noqa: TRY300

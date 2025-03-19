@@ -46,7 +46,7 @@ I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCP
 
 **Configuration**
 - Find Beny Wifi integration under Settings > Devices & services
-- Insert charger IP address. (Depending on model, also port may have to be changed?). Scan interval of the sensors can be configured to match your preference
+- Insert charger serial number and pin. Also scan interval of the sensors can be configured
 
 ### Sensors
 
