@@ -117,26 +117,21 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.debug(f"Broadcast request to {'255.255.255.255'}:{port}")  # noqa: G004
 
                 while True:
-                    try:
-                        response, addr = sock.recvfrom(1024)
-                        sock.close()
+                    response, addr = sock.recvfrom(1024)
+                    sock.close()
 
-                        response = response.decode('ascii')
-                        data = read_message(response)
+                    response = response.decode('ascii')
+                    data = read_message(response)
 
-                        if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
-                            self._errors["base"] = "access_denied"
-                            _LOGGER.exception("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: G004, TRY401
-                            return None
+                    if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
+                        self._errors["base"] = "access_denied"
+                        _LOGGER.exception("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: G004, TRY401
+                        return None
 
-                        dev_data['serial_number'] = data.get('serial', '12345678')
-                        dev_data['ip_address'] = data.get('ip', None)
-                        dev_data['port'] = data.get('port', None)
-                        break
-
-                    except TimeoutError:
-                        _LOGGER.warning("UDP broadcast timed out, no response received")
-                        break
+                    dev_data['serial_number'] = data.get('serial', '12345678')
+                    dev_data['ip_address'] = data.get('ip', None)
+                    dev_data['port'] = data.get('port', None)
+                    break
 
             except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
