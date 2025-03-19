@@ -98,13 +98,14 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         def sync_socket_communication():
             dev_data = {
                 "ip_address": ip,
+                "port": port,
                 "pin": pin,
-                "serial": convert_serial_to_hex(serial)
+                "serial_number": serial
             }
 
             request = build_message(
                 CLIENT_MESSAGE.POLL_DEVICES,
-                {"pin": dev_data["pin"], "serial": dev_data["serial"]}
+                {"pin": dev_data["pin"], "serial": convert_serial_to_hex(dev_data["serial_number"])}
             ).encode('ascii')
 
             try:
@@ -117,30 +118,34 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.debug(f"Broadcast request to {'255.255.255.255'}:{port}")  # noqa: G004
 
                 while True:
-                    response, addr = sock.recvfrom(1024)
-                    sock.close()
+                    try:
+                        response, addr = sock.recvfrom(1024)
+                        sock.close()
 
-                    response = response.decode('ascii')
-                    data = read_message(response)
+                        response = response.decode('ascii')
+                        data = read_message(response)
 
-                    if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
-                        self._errors["base"] = "access_denied"
-                        _LOGGER.exception("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: G004, TRY401
-                        return None
+                        if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
+                            self._errors["base"] = "access_denied"
+                            _LOGGER.exception("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: G004, TRY401
+                            return None
 
-                    dev_data['serial_number'] = data.get('serial', '12345678')
-                    dev_data['ip_address'] = data.get('ip', None)
-                    dev_data['port'] = data.get('port', None)
-                    break
+                        dev_data['serial_number'] = data.get('serial', '12345678')
+                        dev_data['ip_address'] = data.get('ip', None)
+                        dev_data['port'] = data.get('port', None)
+                        break
+
+                    except TimeoutError:
+                        break
 
             except Exception as ex:  # noqa: BLE001
                 self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception(f"Exception receiving device handshake data by broadcast {'255.255.255.255'}:{port}. Cause: {ex}")  # noqa: G004, TRY401
+                _LOGGER.exception(f"Exception receiving device handshake data by broadcast 255.255.255.255:{dev_data["port"]}. Cause: {ex}")  # noqa: G004, TRY401
                 return None
 
             if dev_data['ip_address'] is None:
-                self._errors["base"] = "cannot_communicate"
-                _LOGGER.exception("Device IP not known")  # noqa: G004, TRY401
+                self._errors["base"] = "cannot_resolve_ip"
+                _LOGGER.exception("Cannot resolve device IP, you can try to set it manually")  # noqa: G004, TRY401
                 return None
 
             try:

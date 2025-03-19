@@ -80,7 +80,8 @@
         "pin_length_invalid": "Pin-koodin tulee olla 6 merkkiä pitkä",
         "serial_not_numeric": "Sarjanumeron tulee olla numeerinen",
         "serial_length_invalid": "Sarjanumeron tulee olla 9 merkkiä pitkä",
-        "no_response_timeout": "Laite ei vastannut. Tarkasta sarjanumero ja pin-koodi"
+        "no_response_timeout": "Laite ei vastannut. Tarkasta sarjanumero ja pin-koodi",
+        "cannot_resolve_ip": "Laitteen IP-osoitetta ei voi selvittää automaattisesti. Voit yrittää asettaa sen manuaalisesti"
       }
     },
     "options": {

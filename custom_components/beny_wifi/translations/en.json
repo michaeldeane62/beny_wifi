@@ -80,7 +80,8 @@
         "pin_length_invalid": "Pin code should be 6 characters long",
         "serial_not_numeric": "Serial number should be numeric",
         "serial_length_invalid": "Serial number should be 9 characters long",
-        "no_response_timeout": "No response from the device. Check serial and pin code"
+        "no_response_timeout": "No response from the device. Check serial and pin code",
+        "cannot_resolve_ip": "Device IP cannot be resolved by serial. You can try to set it manually"
       }
     },
     "options": {
