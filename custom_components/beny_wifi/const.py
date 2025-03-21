@@ -1,8 +1,9 @@
 """Constants for custom component."""
 from enum import Enum  # noqa: D100
-from typing import Final
-from homeassistant.const import Platform
 import logging
+from typing import Final
+
+from homeassistant.const import Platform
 
 PLATFORMS: Final = [Platform.SENSOR]
 
@@ -14,7 +15,7 @@ SERIAL = "serial"
 SCAN_INTERVAL: Final = "update_interval"
 
 DEFAULT_SCAN_INTERVAL: Final = 30
-DEFAULT_PORT = 3333 # default listening port (at least for BCP-AT1N-L)
+DEFAULT_PORT = 3333 # default listening port (at least for"BCP-AT1N-L)
 
 IP_ADDRESS = "ip_address"
 PORT = "port"
@@ -71,6 +72,128 @@ def validate_checksum(data: str) -> bool:
         _LOGGER.debug(f"Calculated checksum does not match: msg={msg_checksum} calc={calc_checksum} data={data}")  # noqa: G004
 
     return msg_checksum == calc_checksum
+
+SINGLE_PHASE_CHARGERS = [
+    "BCP-A1-L",
+    "BCP--A2-L",
+    "BCP--A1D-L",
+    "BCP--A2D-L",
+    "BCP--B1-L",
+    "BCP--B2-L",
+    "BCP--B1D-L",
+    "BCP--B2D-L",
+    "BCP--A1-L-E",
+    "BCP--A2-L-E",
+    "BCP--A1D-L-E",
+    "BCP--A2D-L-E",
+    "BCP--B1-L-E",
+    "BCP--B2-L-E",
+    "BCP--B1D-L-E",
+    "BCP--B2D-L-E",
+    "BCP--A1-L-16",
+    "BCP--A2-L-16",
+    "BCP--A1D-L-16",
+    "BCP--A2D-L-16",
+    "BCP--B1-L-16",
+    "BCP--B2-L-16",
+    "BCP--B1D-L-16",
+    "BCP--B2D-L-16",
+    "BCP--A1-L-E-16",
+    "BCP--A2-L-E-16",
+    "BCP--A1D-L-E-16",
+    "BCP--A2D-L-E-16",
+    "BCP--B1-L-E-16",
+    "BCP--B2-L-E-16",
+    "BCP--B1D-L-E-16",
+    "BCP--B2D-L-E-16",
+    "BCP-A1S-L",
+    "BCP-A2S-L",
+    "BCP-A1N-L",
+    "BCP-A2N-L",
+    "BCP-B1S-L",
+    "BCP-B2S-L",
+    "BCP-B1N-L",
+    "BCP-B2N-L",
+    "BCP-A2N-P",
+    "BCP-B2N-P",
+    "BCP-A1S-L-E",
+    "BCP-A2S-L-E",
+    "BCP-A1N-L-E",
+    "BCP-A2N-L-E",
+    "BCP-B1S-L-E",
+    "BCP-B2S-L-E",
+    "BCP-B1N-L-E",
+    "BCP-B2N-L-E",
+    "BCP-A1S-L-16",
+    "BCP-A2S-L-16",
+    "BCP-A1N-L-16",
+    "BCP-A2N-L-16",
+    "BCP-B1S-L-16",
+    "BCP-B2S-L-16",
+    "BCP-B1N-L-16",
+    "BCP-B2N-L-16",
+    "BCP-A1S-L-E-16",
+    "BCP-A2S-L-E-16",
+    "BCP-A1N-L-E-16",
+    "BCP-A2N-L-E-16",
+    "BCP-B1S-L-E-16",
+    "BCP-B2S-L-E-16",
+    "BCP-B1N-L-E-16",
+    "BCP-B2N-L-E-16",
+    "BCP-A2-L"
+]
+
+THREE_PHASE_CHARGERS = [
+    "BCP-AT2N-P",
+    "BCP-BT2N-P",
+    "BCP-AT1S-L",
+    "BCP-AT2S-L",
+    "BCP-BT1S-L",
+    "BCP-BT2S-L",
+    "BCP-AT1N-L",
+    "BCP-AT2N-L",
+    "BCP-BT1N-L",
+    "BCP-BT2N-L",
+    "BCP-AT1S-L-16",
+    "BCP-AT2S-L-16",
+    "BCP-BT1S-L-16",
+    "BCP-BT2S-L-16",
+    "BCP-AT1N-L-16",
+    "BCP-AT2N-L-16",
+    "BCP-BT1N-L-16",
+    "BCP-BT2N-L-16"
+]
+
+DLB_CHARGERS = [
+    "BCP-A1N-L",
+    "BCP-A2N-L",
+    "BCP-B1N-L",
+    "BCP-B2N-L",
+    "BCP-A2N-P",
+    "BCP-B2N-P",
+    "BCP-AT2N-P",
+    "BCP-BT2N-P",
+    "BCP-A1N-L-E",
+    "BCP-A2N-L-E",
+    "BCP-B1N-L-E",
+    "BCP-B2N-L-E",
+    "BCP-A1N-L-16",
+    "BCP-A2N-L-16",
+    "BCP-B1N-L-16",
+    "BCP-B2N-L-16",
+    "BCP-A1N-L-E-16",
+    "BCP-A2N-L-E-16",
+    "BCP-B1N-L-E-16",
+    "BCP-B2N-L-E-16",
+    "BCP-AT1N-L",
+    "BCP-AT2N-L",
+    "BCP-BT1N-L",
+    "BCP-BT2N-L",
+    "BCP-AT1N-L-16",
+    "BCP-AT2N-L-16",
+    "BCP-BT1N-L-16",
+    "BCP-BT2N-L-16"
+]
 
 class CHARGER_STATE(Enum):
     """Charger states."""
@@ -226,8 +349,27 @@ class SERVER_MESSAGE(Enum):
             "model": slice(12, -2)
         }
     }
-    SEND_VALUES = {
-        "description": "Receive values from charger",
+    SEND_VALUES_1P = {
+        #55aa10001e70000000ee000000557b010000000000000006000000000365
+        "description": "Receive values from 1-phase charger",
+        "structure": {
+            "request_type": slice(10, 12),
+            "current1": slice(17, 18),
+            "voltage1": slice(18, 20),
+            "power": slice(20, 22),
+            "total_kwh": slice(22, 26),
+            "state": slice(30, 32),
+            "timer_state": slice(32, 34),
+            "max_current": slice(46, 48),
+            "timer_start_h": slice(36, 38),
+            "timer_start_min": slice(38, 40),
+            "timer_end_h": slice(40, 42),
+            "timer_end_min": slice(42, 44),
+            "maximum_session_consumption": slice(48, 50)
+        }
+    }
+    SEND_VALUES_3P = {
+        "description": "Receive values from 3-phase charger",
         "structure": {
             "request_type": slice(10, 12),
             "current1": slice(13, 14),

@@ -20,7 +20,7 @@ from .conversions import (  # type: ignore  # noqa: PGH003
 
 _LOGGER = logging.getLogger(__name__)
 
-def read_message(data, msg_type:str | None = None) -> dict:
+def read_message(data, msg_type:str | None = None) -> dict:  # noqa: C901
     """Convert ascii hex string to dict.
 
     Args:
@@ -46,20 +46,24 @@ def read_message(data, msg_type:str | None = None) -> dict:
     for param, pos in COMMON.FIXED_PART.value["structure"].items():
         msg[param] = int(data[pos], 16)
 
-    # server sends values like voltages, currents etc.
-    if msg_type == SERVER_MESSAGE.SEND_VALUES:
+    # server sends 1-phase or 3-phase values like voltages, currents etc.
+    if msg_type in (SERVER_MESSAGE.SEND_VALUES_1P, SERVER_MESSAGE.SEND_VALUES_3P):
         for param, pos in msg_type.value["structure"].items():
             value = int(data[pos], 16)
-            if param == "state":
-                msg[param] = CHARGER_STATE(value).name
-            elif param == "timer_state":
-                msg[param] = TIMER_STATE(value).name
-            elif param == "total_kwh":
-                msg[param] = float(value) / 10
-            elif param == "request_type":
-                msg[param] = REQUEST_TYPE(value).name
-            else:
-                msg[param] = value
+            try:
+                if param == "state":
+                    msg[param] = CHARGER_STATE(value).name
+                elif param == "timer_state":
+                    msg[param] = TIMER_STATE(value).name
+                elif param == "total_kwh":
+                    msg[param] = float(value) / 10
+                elif param == "request_type":
+                    msg[param] = REQUEST_TYPE(value).name
+                else:
+                    msg[param] = value
+            except ValueError:
+                _LOGGER.error(f"Invalid value for {param}: value")  # noqa: G004
+                msg[param] = None
 
     # server sends charger model
     if msg_type == SERVER_MESSAGE.SEND_MODEL:

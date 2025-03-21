@@ -59,6 +59,9 @@
       }
     },
     "config": {
+      "abort": {
+        "reconfigure_successful": "Reconfiguration was completed successfully"
+      },
       "step": {
         "user": {
           "title": "Configure Beny Charger",

@@ -8,7 +8,14 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.entity import DeviceInfo, Entity
 
-from .const import DOMAIN, MODEL, SERIAL
+from .const import (
+    DLB_CHARGERS,
+    DOMAIN,
+    MODEL,
+    SERIAL,
+    SINGLE_PHASE_CHARGERS,
+    THREE_PHASE_CHARGERS,
+)
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -16,21 +23,45 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
     device_id = config_entry.data[SERIAL]
     device_model = config_entry.data[MODEL]
-    sensors = [
-        BenyWifiChargerStateSensor(coordinator, "charger_state", device_id=device_id, device_model=device_model),
-        BenyWifiPowerSensor(coordinator, "power", device_id=device_id, device_model=device_model),
-        BenyWifiVoltageSensor(coordinator, "voltage1", device_id=device_id, device_model=device_model),
-        BenyWifiVoltageSensor(coordinator, "voltage2", device_id=device_id, device_model=device_model),
-        BenyWifiVoltageSensor(coordinator, "voltage3", device_id=device_id, device_model=device_model),
-        BenyWifiCurrentSensor(coordinator, "current1", device_id=device_id, device_model=device_model),
-        BenyWifiCurrentSensor(coordinator, "current2", device_id=device_id, device_model=device_model),
-        BenyWifiCurrentSensor(coordinator, "current3", device_id=device_id, device_model=device_model),
-        BenyWifiCurrentSensor(coordinator, "max_current", device_id=device_id, device_model=device_model),
-        BenyWifiEnergySensor(coordinator, "total_kwh", device_id=device_id, device_model=device_model),
-        BenyWifiEnergySensor(coordinator, "maximum_session_consumption", icon="mdi:meter-electric", device_id=device_id, device_model=device_model),
-        BenyWifiTimerSensor(coordinator, "timer_start", icon="mdi:timer-sand-full", device_id=device_id, device_model=device_model),
-        BenyWifiTimerSensor(coordinator, "timer_end", icon="mdi:timer-sand-empty", device_id=device_id, device_model=device_model),
-    ]
+
+    sensors = []
+
+    # by default only all 1-phase sensors are included
+    if device_model in SINGLE_PHASE_CHARGERS:
+        sensors = [
+            BenyWifiChargerStateSensor(coordinator, "charger_state", device_id=device_id, device_model=device_model),
+            BenyWifiPowerSensor(coordinator, "power", device_id=device_id, device_model=device_model),
+            BenyWifiVoltageSensor(coordinator, "voltage1", device_id=device_id, device_model=device_model),
+            BenyWifiCurrentSensor(coordinator, "current1", device_id=device_id, device_model=device_model),
+            BenyWifiCurrentSensor(coordinator, "max_current", device_id=device_id, device_model=device_model),
+            BenyWifiEnergySensor(coordinator, "total_kwh", device_id=device_id, device_model=device_model),
+            BenyWifiEnergySensor(coordinator, "maximum_session_consumption", icon="mdi:meter-electric", device_id=device_id, device_model=device_model),
+            BenyWifiTimerSensor(coordinator, "timer_start", icon="mdi:timer-sand-full", device_id=device_id, device_model=device_model),
+            BenyWifiTimerSensor(coordinator, "timer_end", icon="mdi:timer-sand-empty", device_id=device_id, device_model=device_model)
+        ]
+
+    # add all three phases if model supports them
+    elif device_model in THREE_PHASE_CHARGERS:
+        sensors = [
+            BenyWifiChargerStateSensor(coordinator, "charger_state", device_id=device_id, device_model=device_model),
+            BenyWifiPowerSensor(coordinator, "power", device_id=device_id, device_model=device_model),
+            BenyWifiVoltageSensor(coordinator, "voltage1", device_id=device_id, device_model=device_model),
+            BenyWifiVoltageSensor(coordinator, "voltage2", device_id=device_id, device_model=device_model),
+            BenyWifiVoltageSensor(coordinator, "voltage3", device_id=device_id, device_model=device_model),
+            BenyWifiCurrentSensor(coordinator, "current1", device_id=device_id, device_model=device_model),
+            BenyWifiCurrentSensor(coordinator, "current2", device_id=device_id, device_model=device_model),
+            BenyWifiCurrentSensor(coordinator, "current3", device_id=device_id, device_model=device_model),
+            BenyWifiCurrentSensor(coordinator, "max_current", device_id=device_id, device_model=device_model),
+            BenyWifiEnergySensor(coordinator, "total_kwh", device_id=device_id, device_model=device_model),
+            BenyWifiEnergySensor(coordinator, "maximum_session_consumption", icon="mdi:meter-electric", device_id=device_id, device_model=device_model),
+            BenyWifiTimerSensor(coordinator, "timer_start", icon="mdi:timer-sand-full", device_id=device_id, device_model=device_model),
+            BenyWifiTimerSensor(coordinator, "timer_end", icon="mdi:timer-sand-empty", device_id=device_id, device_model=device_model)
+        ]
+
+    # TODO: DLB
+    if device_model in DLB_CHARGERS:
+        # sensors.insert([])
+        pass
 
     async_add_entities(sensors)
 

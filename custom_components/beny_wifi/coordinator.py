@@ -14,10 +14,10 @@ from .const import (
     CHARGER_COMMAND,
     CHARGER_STATE,
     CLIENT_MESSAGE,
+    CONF_PIN,
     DOMAIN,
     REQUEST_TYPE,
     SERIAL,
-    CONF_PIN
 )
 from .conversions import convert_schedule, convert_timer, get_hex
 
@@ -67,10 +67,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             data = read_message(response)
 
             if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
-                self._errors["base"] = "access_denied"
-                _LOGGER.exception("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: G004, TRY401
-                raise UpdateFailed("Device denied request. Please reconfigure integration if your pin has changed")
-                return None
+                raise UpdateFailed("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: TRY301
 
             # Set unset state to both start and end time if timer is not set at all
             if data['timer_state'] == 'UNSET':

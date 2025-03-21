@@ -88,6 +88,47 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             errors=self._errors
         )
 
+    async def async_step_reconfigure(self, user_input = None):
+        """Reconfigure integration."""
+
+        existing_entry = self.hass.config_entries.async_get_entry(self.context["entry_id"])
+        existing_data = existing_entry.data if existing_entry else {}
+
+        self._errors = {}
+
+        if user_input is not None:
+
+            if not user_input[CONF_PIN].isdigit():
+                self._errors["base"] = "pin_not_numeric"
+
+            if len(user_input[CONF_PIN]) != 6:
+                self._errors["base"] = "pin_length_invalid"
+
+            if not user_input[CONF_SERIAL].isdigit():
+                self._errors["base"] = "serial_not_numeric"
+
+            if len(user_input[CONF_SERIAL]) != 9:
+                self._errors["base"] = "serial_length_invalid"
+
+            user_input[CONF_PIN] = convert_pin_to_hex(user_input[CONF_PIN])
+
+            if "base" not in self._errors or self._errors["base"] is None:
+                return self.async_update_reload_and_abort(self._get_reconfigure_entry(), data_updates=user_input)
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(PORT, default=int(existing_data.get(PORT))): int,
+                    vol.Optional(IP_ADDRESS, default=str(existing_data.get(IP_ADDRESS))): str,
+                    vol.Required(CONF_SERIAL, default=str(existing_data.get(CONF_SERIAL))): str,
+                    vol.Required(CONF_PIN, default=str(int(existing_data.get(CONF_PIN), 16)).zfill(6)): str,
+                    vol.Optional(SCAN_INTERVAL, default=int(existing_data.get(SCAN_INTERVAL))): int,
+                }
+            ),
+            errors=self._errors
+        )
+
     async def _device_exists(self, serial_number: str) -> bool:
         """Check if a device with the given serial number already exists."""
         device_registry = async_get_device_registry(self.hass)

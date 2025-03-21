@@ -6,7 +6,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 
-from .const import IP_ADDRESS, PORT, DOMAIN, PLATFORMS, SCAN_INTERVAL
+from .const import DOMAIN, IP_ADDRESS, PLATFORMS, PORT, SCAN_INTERVAL
 from .coordinator import BenyWifiUpdateCoordinator
 from .services import async_setup_services
 

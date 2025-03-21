@@ -87,3 +87,15 @@ Currently integration supports following actions:
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
 - map missing parameters as sensors (like internal device temperature)
+
+### Troubleshooting guide
+
+   1. Get [PCAPdroid](https://github.com/emanuele-f/PCAPdroid)
+   2. Open that up and select traffic dump to PCAP file and from target apps select Z-Box. Do not start capture yet (on my phone Z-Box did not want to connect to charger while capturing)
+   3. Open Z-Box and enter the main page of device where the values and data are shown and updated
+   4. Now go back to PCAPdroid and press circle with "Ready". Record a couple kb of data and stop capturing
+   5. Under three dots in upper right corner, select Open PCAP file. By default, it is saved to Downloads > PCAPdroid
+   6. The interesting part is UDP to port 3333
+   7. From there you can check Payload tab with both request and response
+   
+For privacy, just keep in mind that characters 13-18 are your pin code, obfuscate it before sharing if you wish to keep it private

@@ -147,8 +147,10 @@ def get_message_type(data: str) -> CLIENT_MESSAGE | SERVER_MESSAGE:
 
     if msg_int == 8:
         return SERVER_MESSAGE.ACCESS_DENIED
+    if msg_int == 30:
+        return SERVER_MESSAGE.SEND_VALUES_1P
     if msg_int == 35:
-        return SERVER_MESSAGE.SEND_VALUES
+        return SERVER_MESSAGE.SEND_VALUES_3P
     if msg_int == 17:
         return SERVER_MESSAGE.HANDSHAKE
     if msg_int == 32:

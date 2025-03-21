@@ -59,6 +59,9 @@
       }
     },
     "config": {
+      "abort": {
+        "reconfigure_successful": "Uudelleenmääritys tehtiin onnistuneesti"
+      },
       "step": {
         "user": {
           "title": "Lisää latausasema",
