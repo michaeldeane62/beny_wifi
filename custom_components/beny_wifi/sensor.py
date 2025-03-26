@@ -8,14 +8,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers.entity import DeviceInfo, Entity
 
-from .const import (
-    DLB_CHARGERS,
-    DOMAIN,
-    MODEL,
-    SERIAL,
-    SINGLE_PHASE_CHARGERS,
-    THREE_PHASE_CHARGERS,
-)
+from .const import CHARGER_TYPE, DLB, DOMAIN, MODEL, SERIAL
 
 
 async def async_setup_entry(hass, config_entry, async_add_entities):
@@ -23,11 +16,13 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     coordinator = hass.data[DOMAIN][config_entry.entry_id]["coordinator"]
     device_id = config_entry.data[SERIAL]
     device_model = config_entry.data[MODEL]
+    device_type = config_entry.data[CHARGER_TYPE]
+    dlb = config_entry.data[DLB]
 
     sensors = []
 
     # by default only all 1-phase sensors are included
-    if device_model in SINGLE_PHASE_CHARGERS:
+    if device_type == '1P':
         sensors = [
             BenyWifiChargerStateSensor(coordinator, "charger_state", device_id=device_id, device_model=device_model),
             BenyWifiPowerSensor(coordinator, "power", device_id=device_id, device_model=device_model),
@@ -35,13 +30,14 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             BenyWifiCurrentSensor(coordinator, "current1", device_id=device_id, device_model=device_model),
             BenyWifiCurrentSensor(coordinator, "max_current", device_id=device_id, device_model=device_model),
             BenyWifiEnergySensor(coordinator, "total_kwh", device_id=device_id, device_model=device_model),
+            BenyWifiTemperatureSensor(coordinator, "temperature", device_id=device_id, device_model=device_model),
             BenyWifiEnergySensor(coordinator, "maximum_session_consumption", icon="mdi:meter-electric", device_id=device_id, device_model=device_model),
             BenyWifiTimerSensor(coordinator, "timer_start", icon="mdi:timer-sand-full", device_id=device_id, device_model=device_model),
             BenyWifiTimerSensor(coordinator, "timer_end", icon="mdi:timer-sand-empty", device_id=device_id, device_model=device_model)
         ]
 
     # add all three phases if model supports them
-    elif device_model in THREE_PHASE_CHARGERS:
+    elif device_type == '3P':
         sensors = [
             BenyWifiChargerStateSensor(coordinator, "charger_state", device_id=device_id, device_model=device_model),
             BenyWifiPowerSensor(coordinator, "power", device_id=device_id, device_model=device_model),
@@ -53,15 +49,20 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             BenyWifiCurrentSensor(coordinator, "current3", device_id=device_id, device_model=device_model),
             BenyWifiCurrentSensor(coordinator, "max_current", device_id=device_id, device_model=device_model),
             BenyWifiEnergySensor(coordinator, "total_kwh", device_id=device_id, device_model=device_model),
+            BenyWifiTemperatureSensor(coordinator, "temperature", device_id=device_id, device_model=device_model),
             BenyWifiEnergySensor(coordinator, "maximum_session_consumption", icon="mdi:meter-electric", device_id=device_id, device_model=device_model),
             BenyWifiTimerSensor(coordinator, "timer_start", icon="mdi:timer-sand-full", device_id=device_id, device_model=device_model),
             BenyWifiTimerSensor(coordinator, "timer_end", icon="mdi:timer-sand-empty", device_id=device_id, device_model=device_model)
         ]
 
     # TODO: DLB
-    if device_model in DLB_CHARGERS:
-        # sensors.insert([])
-        pass
+    if dlb:
+        sensors.extend([
+            BenyWifiPowerSensor(coordinator, "grid_power", icon="mdi:transmission-tower", device_id=device_id, device_model=device_model),
+            BenyWifiPowerSensor(coordinator, "solar_power", icon="mdi:solar-power-variant", device_id=device_id, device_model=device_model),
+            BenyWifiPowerSensor(coordinator, "ev_power", icon="mdi:car-electric", device_id=device_id, device_model=device_model),
+            BenyWifiPowerSensor(coordinator, "house_power", icon="mdi:home-lightning-bolt", device_id=device_id, device_model=device_model),
+        ])
 
     async_add_entities(sensors)
 
@@ -151,6 +152,18 @@ class BenyWifiPowerSensor(BenyWifiSensor):
     def unit_of_measurement(self):
         """Sensor unit."""
         return UnitOfPower.KILO_WATT
+
+class BenyWifiTemperatureSensor(BenyWifiSensor):
+    """Temperature sensor class."""
+
+    def __init__(self, coordinator, key, device_id=None, device_model=None, icon="mdi:thermometer"):
+        """Initialize sensor."""
+        super().__init__(coordinator, key, device_id, device_model, icon)
+
+    @property
+    def unit_of_measurement(self):
+        """Sensor unit."""
+        return self.hass.config.units.temperature_unit
 
 class BenyWifiEnergySensor(BenyWifiSensor):
     """Energy sensor class."""

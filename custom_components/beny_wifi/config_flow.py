@@ -10,11 +10,14 @@ from homeassistant.helpers.device_registry import async_get as async_get_device_
 
 from .communication import build_message, read_message
 from .const import (
+    CHARGER_TYPE,
     CLIENT_MESSAGE,
     CONF_PIN,
     CONF_SERIAL,
     DEFAULT_PORT,
     DEFAULT_SCAN_INTERVAL,
+    DLB,
+    DLB_CHARGERS,
     DOMAIN,
     IP_ADDRESS,
     MODEL,
@@ -22,6 +25,8 @@ from .const import (
     REQUEST_TYPE,
     SCAN_INTERVAL,
     SERIAL,
+    SINGLE_PHASE_CHARGERS,
+    THREE_PHASE_CHARGERS,
 )
 from .conversions import convert_pin_to_hex, convert_serial_to_hex, get_hex
 
@@ -70,6 +75,18 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         user_input[PORT] = dev_data["port"]
                         user_input[MODEL] = dev_data.get("model", "Charger")
                         user_input[SERIAL] = dev_data["serial_number"]
+
+                        if user_input[MODEL] in SINGLE_PHASE_CHARGERS:
+                            user_input[CHARGER_TYPE] = '1P'
+
+                        elif user_input[MODEL] in THREE_PHASE_CHARGERS:
+                            user_input[CHARGER_TYPE] = '3P'
+
+                        if user_input[MODEL] in DLB_CHARGERS:
+                            user_input[DLB] = True
+                        else:
+                            user_input[DLB] = False
+
                         return self.async_create_entry(title="Beny Wifi", data=user_input)
 
                     self._errors["base"] = "device_already_configured"
@@ -173,7 +190,10 @@ class BenyWifiConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                         dev_data['serial_number'] = data.get('serial', '12345678')
                         dev_data['ip_address'] = data.get('ip', None)
-                        dev_data['port'] = data.get('port', None)
+                        if not port:
+                            dev_data['port'] = data.get('port', None)
+                        else:
+                            dev_data['port'] = port
                         break
 
                     except TimeoutError:

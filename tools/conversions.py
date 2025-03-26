@@ -1,4 +1,4 @@
-from .const import CLIENT_MESSAGE, COMMON, SERVER_MESSAGE  # noqa: D100
+from const import CLIENT_MESSAGE, COMMON, SERVER_MESSAGE  # noqa: D100
 
 
 def get_hex(data: int, length: int = 2) -> str:
@@ -136,7 +136,6 @@ def get_message_type(data: str) -> CLIENT_MESSAGE | SERVER_MESSAGE:
         _type_: _description_
 
     """
-    message_type = data[COMMON.FIXED_PART.value["structure"]["message_type"]]
     msg_int = int(data[COMMON.FIXED_PART.value["structure"]["message_id"]], 16)
 
     if msg_int == 11:
@@ -152,12 +151,7 @@ def get_message_type(data: str) -> CLIENT_MESSAGE | SERVER_MESSAGE:
         return SERVER_MESSAGE.SEND_VALUES_1P
     if msg_int == 35:
         return SERVER_MESSAGE.SEND_VALUES_3P
-    if msg_int == 33:
-        return SERVER_MESSAGE.SEND_DLB
     if msg_int == 17:
-        if message_type.upper() == '7B':
-            return SERVER_MESSAGE.SEND_DLB
-
         return SERVER_MESSAGE.HANDSHAKE
     if msg_int == 32:
         return SERVER_MESSAGE.SEND_MODEL

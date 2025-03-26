@@ -1,0 +1,34 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "PCAP to JSON",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "pcap_to_json.py",
+            "console": "integratedTerminal",
+            "args": [
+                "packets.pcap",
+                "messages.json"
+            ]
+        },
+        {
+            "name": "Charger Simulator",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "charger_simulator.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Read Message",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "read_message.py",
+            "console": "integratedTerminal"
+        }
+    ]
+}

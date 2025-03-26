@@ -15,6 +15,7 @@ from .const import (
     CHARGER_STATE,
     CLIENT_MESSAGE,
     CONF_PIN,
+    DLB,
     DOMAIN,
     REQUEST_TYPE,
     SERIAL,
@@ -116,6 +117,25 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             data['power'] = float(data['power']) / 10
             data['total_kwh'] = float(data['total_kwh'])
+            data['temperature'] = int(data['temperature'] - 100)
+
+            if self.config_entry.data[DLB]:
+                # Build the dlb request message
+                request = build_message(
+                    CLIENT_MESSAGE.REQUEST_DLB,
+                    {"pin": self.config_entry.data[CONF_PIN], "request_type": get_hex(REQUEST_TYPE.DLB.value)}
+                ).encode('ascii')
+
+                # Send UDP request asynchronously
+                loop = asyncio.get_event_loop()
+                response_dlb = await loop.run_in_executor(None, self._send_udp_request, request)
+                response_dlb = response_dlb.decode('ascii')
+                data_dlb = read_message(response_dlb)
+
+                data['grid_power'] = float(data_dlb['grid_power']) / 10
+                data['house_power'] = float(data_dlb['house_power']) / 10
+                data['ev_power'] = float(data_dlb['ev_power']) / 10
+                data['solar_power'] = float(data_dlb['solar_power']) / 10
 
             return data  # noqa: TRY300
         except Exception as err:  # noqa: BLE001

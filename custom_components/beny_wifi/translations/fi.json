@@ -35,11 +35,26 @@
         "current3": {
           "name": "Virta L3"
         },
+        "grid_power": {
+          "name": "DLB Verkon teho"
+        },
+        "ev_power": {
+          "name": "DLB EV teho"
+        },
+        "house_power": {
+          "name": "DLB Asunnon teho"
+        },
+        "solar_power": {
+          "name": "DLB Aurinkopaneeli teho"
+        },
         "max_current": {
           "name": "Maksimi virta"
         },
         "total_kwh": {
           "name": "Ladattu yhteensä"
+        },
+        "temperature": {
+          "name": "Lämpötila"
         },
         "maximum_session_consumption": {
           "name": "Session latausraja"

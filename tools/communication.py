@@ -1,6 +1,6 @@
 import logging  # noqa: D100
 
-from .const import (  # noqa: D100
+from const import (  # noqa: D100
     CHARGER_COMMAND,
     CHARGER_STATE,
     CLIENT_MESSAGE,
@@ -11,7 +11,7 @@ from .const import (  # noqa: D100
     calculate_checksum,
     validate_checksum,
 )
-from .conversions import (  # type: ignore  # noqa: PGH003
+from conversions import (  # type: ignore  # noqa: PGH003
     convert_weekdays_to_dict,
     get_ip,
     get_message_type,
@@ -59,18 +59,6 @@ def read_message(data, msg_type:str | None = None) -> dict:  # noqa: C901
                     msg[param] = float(value) / 10
                 elif param == "request_type":
                     msg[param] = REQUEST_TYPE(value).name
-                else:
-                    msg[param] = value
-            except ValueError:
-                _LOGGER.error(f"Invalid value for {param}: value")  # noqa: G004
-                msg[param] = None
-
-    if msg_type == SERVER_MESSAGE.SEND_DLB:
-        for param, pos in msg_type.value["structure"].items():
-            value = int(data[pos], 16)
-            try:
-                if param in ["grid_power", "ev_power", "house_power", "solar_power"]:
-                    msg[param] = float(value) / 10
                 else:
                     msg[param] = value
             except ValueError:

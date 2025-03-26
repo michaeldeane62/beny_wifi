@@ -3,16 +3,10 @@ from enum import Enum  # noqa: D100
 import logging
 from typing import Final
 
-from homeassistant.const import Platform
-
-PLATFORMS: Final = [Platform.SENSOR]
-
 NAME: Final = "Beny Wifi"
 DOMAIN: Final = "beny_wifi"
 MODEL = "model"
 SERIAL = "serial"
-CHARGER_TYPE = "charger_type"
-DLB = "dlb"
 
 SCAN_INTERVAL: Final = "update_interval"
 
@@ -194,8 +188,7 @@ DLB_CHARGERS = [
     "BCP-AT1N-L-16",
     "BCP-AT2N-L-16",
     "BCP-BT1N-L-16",
-    "BCP-BT2N-L-16",
-    "BCP-A2-L"
+    "BCP-BT2N-L-16"
 ]
 
 class CHARGER_STATE(Enum):
@@ -228,8 +221,10 @@ class REQUEST_TYPE(Enum):
 
     VALUES = 112
     SETTINGS = 113
-    DLB = 123
     MODEL = 4
+
+def get_length(message, parameter):
+    header_length = message["structure"][parameter].stop - message["structure"][parameter].start
 
 class COMMON(Enum):
     """Common mapping for fixed message contents."""
@@ -238,7 +233,7 @@ class COMMON(Enum):
         "description": "Header of message",
         "structure": {
             "header": slice(0, 4),
-            "message_type": slice(4, 6),
+            "version": slice(4, 6),
             "message_id": slice(6, 10)
         },
     }
@@ -257,14 +252,6 @@ class CLIENT_MESSAGE(Enum):
     REQUEST_DATA = {
         "description": "Update request 1",
         "hex": "55aa10000b000[pin][request_type][checksum]",
-        "structure": {
-            "pin": slice(13,18),
-            "request_type": slice(18, 20)
-        }
-    }
-    REQUEST_DLB = {
-        "description": "DLB update request",
-        "hex": "55aa7b000b000[pin][request_type][checksum]",
         "structure": {
             "pin": slice(13,18),
             "request_type": slice(18, 20)
@@ -347,6 +334,7 @@ class SERVER_MESSAGE(Enum):
 
     HANDSHAKE = {
         "description": "Receive charger handshake",
+        "hex": "55aa100011030[serial][ip][port][checksum]",
         "structure": {
             "serial": slice(12, 20),
             "ip": slice(20, 28, 2),
@@ -356,27 +344,30 @@ class SERVER_MESSAGE(Enum):
     }
     SEND_MODEL = {
         "description": "Receive model from charger",
+        "hex": "55aa400020040001[model][checksum]",
         "structure": {
             "request_type": slice(10, 12),
             "model": slice(12, -2)
         }
     }
     SEND_VALUES_1P = {
+        #55aa10001e70000000ee000000557b010000000000000006000000000365
+               #55aa10001e70000000ee000000557b010000000000000006000000000365
+        "hex": "55aa700023[request_type]00000[current1][voltage1][power]00e800e80000012b6501000000000000000f00000000035e",
         "description": "Receive values from 1-phase charger",
         "structure": {
             "request_type": slice(10, 12),
-            "current1": slice(14, 16),
+            "current1": slice(17, 18),
             "voltage1": slice(18, 20),
             "power": slice(20, 24),
             "total_kwh": slice(24, 28),
-            "temperature": slice(28, 30),
             "state": slice(30, 32),
             "timer_state": slice(32, 34),
+            "max_current": slice(46, 48),
             "timer_start_h": slice(36, 38),
             "timer_start_min": slice(38, 40),
             "timer_end_h": slice(40, 42),
             "timer_end_min": slice(42, 44),
-            "max_current": slice(46, 48),
             "maximum_session_consumption": slice(48, 50)
         }
     }
@@ -392,27 +383,14 @@ class SERVER_MESSAGE(Enum):
             "voltage3": slice(28, 30),
             "power": slice(30, 34),
             "total_kwh": slice(34, 38),
-            "temperature": slice(38, 40),
             "state": slice(40, 42),
             "timer_state": slice(42, 44),
+            "max_current": slice(56, 58),
             "timer_start_h": slice(44, 46),
             "timer_start_min": slice(46, 48),
             "timer_end_h": slice(50, 52),
             "timer_end_min": slice(52, 54),
-            "max_current": slice(56, 58),
             "maximum_session_consumption": slice(58, 60)
-        }
-    }
-    SEND_DLB = {
-        #55aa7b00117b010000d100f800000002d2
-        #55aa7b00217b000000000000000000000000000000000000000000000000000016
-        "description": "Receive dlb values",
-        "structure": {
-            "request_type": slice(10, 12),
-            "solar_power": slice(16, 20),
-            "ev_power": slice(20, 24),
-            "house_power": slice(24, 28),
-            "grid_power": slice(28, 32)
         }
     }
     ACCESS_DENIED = {
