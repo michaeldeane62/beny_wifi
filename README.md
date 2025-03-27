@@ -17,19 +17,20 @@
     <img alt="Sensors" height="256px" src="https://github.com/Jarauvi/beny-wifi/blob/main/images/sensors.png?raw=true">
 </div>
 
-This repository contains Home Assistant custom component for controlling and retrieving information from ZJ Beny EV chargers via Wifi. 
+This repository contains Home Assistant custom component for communicating with ZJ Beny EV chargers over Wifi. 
 
 Integration mimics ZBox phone app's communication with charger. All parameters and commands are not mapped yet, but assumption is that any charger communicating with ZBox app should work with integration.
 
 ### Supported chargers
 
-I have tested integration with 3-phase, non-OCPP model. 1-phase chargers and OCPP equipped devices may work, but I have no possibility to confirm that. If you have one and you're willing to test the compatibility, please share your results and I will add the model to supported devices 🙏 
+Integration should support 1-phase and 3-phase "smart" chargers with or without DLB. Also OCPP equipped devices may work, but I've had no possibility to confirm that. If you have one and you're willing to test the compatibility, please share your results and I will add the model to supported devices 🙏 
 
 ### Confirmed to work with models
 
 | Model              | Firmware version |       Status      |
 | ------------------ | ---------------- | ----------------- |
-| BCP-AT1N-L         | 1.26             | ✅            |
+| BCP-AT1N-L         | 1.26             | ✅                |
+| BCP-A2-L           | 1.26             | WIP               |
 
 ### Installation
 
@@ -56,16 +57,25 @@ Currently, integration creates charger device with following sensors:
 | ------------------ | --------------- | ----------------------------------------------------------------------------- |
 | state              | [charger state] | Charger state *(abnormal unplugged standby starting unknown waiting charging)*|
 | current1           | [A]             | Current L1                                                                    |
-| current2           | [A]             | Current L2                                                                    |
-| current3           | [A]             | Current L3                                                                    |
+| current2*          | [A]             | Current L2                                                                    |
+| current3*          | [A]             | Current L3                                                                    |
 | voltage1           | [V]             | Voltage L1                                                                    |
-| voltage2           | [V]             | Voltage L2                                                                    |
-| voltage3           | [V]             | Voltage L3                                                                    |
+| voltage2*          | [V]             | Voltage L2                                                                    |
+| voltage3*          | [V]             | Voltage L3                                                                    |
 | power              | [kW]            | Current power consumption                                                     |
 | total_energy       | [kWh]           | Session based charged capacity                                                |
+| temperature        | [C / F]         | Charger temperature
 | maximum_session_consumption       | [kWh]           | Session based maximum consumption                                                |
 | timer_start        | [timestamp]     | Currently set timer start time                                                |
 | timer_end          | [timestamp]     | Currently set timer end time                                                  |
+| grid_import**      | [kW]            | Imported power from grid                                                      |
+| grid_export**      | [kW]            | Exported power from grid                                                      |
+| solar_power**      | [kW]            | Solar power                                                                   |
+| ev_power**         | [kW]            | Power for charging EV                                                         |
+| house_power**      | [kW]            | Power for house                                                               |
+
+* 3-phase charger only
+* dlb equipped charger only
 
 ### Actions
 
@@ -86,7 +96,7 @@ Currently integration supports following actions:
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
-- map missing parameters as sensors (like internal device temperature)
+- all done at the moment!
 
 ### Troubleshooting guide
 
@@ -99,3 +109,8 @@ I am pretty busy with the most adorable baby boy right now, but I'll be adding s
    7. From there you can check Payload tab with both request and response
    
 For privacy, just keep in mind that characters 13-18 are your pin code, obfuscate it before sharing if you wish to keep it private
+
+Tools folder has some scripts that may help:
+- simple udp server that can be used for simulating charger responses
+- tool for converting pcap-file to json that simulator can read
+- script for translating messages
