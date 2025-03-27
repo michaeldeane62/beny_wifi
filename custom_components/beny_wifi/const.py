@@ -39,9 +39,9 @@ def calculate_checksum(data: str) -> int:
 
     # if there is a placeholder in command message, skip that one
     if "[checksum]" in data:
-        data = data[:-len("[checksum]")]
+        data = data[:-len("[checksum]")].strip()
     else:
-        data = data[:-2]
+        data = data[:-2].strip()
 
     return sum([int(data[i:i+2], 16) for i in range(0, len(data), 2)]) % 256
 
@@ -404,15 +404,14 @@ class SERVER_MESSAGE(Enum):
         }
     }
     SEND_DLB = {
-        #55aa7b00117b010000d100f800000002d2
-        #55aa7b00217b000000000000000000000000000000000000000000000000000016
         "description": "Receive dlb values",
         "structure": {
             "request_type": slice(10, 12),
-            "solar_power": slice(16, 20),
-            "ev_power": slice(20, 24),
-            "house_power": slice(24, 28),
-            "grid_power": slice(28, 32)
+            "solar_power": slice(18, 20),
+            "ev_power": slice(22, 24),
+            "house_power": slice(26, 28),
+            "grid_export": slice(28, 30),
+            "grid_power": slice(30, 32)
         }
     }
     ACCESS_DENIED = {

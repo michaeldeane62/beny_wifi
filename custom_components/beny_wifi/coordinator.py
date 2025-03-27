@@ -67,6 +67,9 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             response = response.decode('ascii')
             data = read_message(response)
 
+            if data is None:
+                raise UpdateFailed("Error fetching data: checksum not valid")  # noqa: B904, TRY301
+
             if data['message_type'] == "SERVER_MESSAGE.ACCESS_DENIED":
                 raise UpdateFailed("Device denied request. Please reconfigure integration if your pin has changed")  # noqa: TRY301
 
@@ -132,7 +135,13 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 response_dlb = response_dlb.decode('ascii')
                 data_dlb = read_message(response_dlb)
 
-                data['grid_power'] = float(data_dlb['grid_power']) / 10
+                if data_dlb['grid_export']:
+                    data['grid_import'] = 0
+                    data['grid_export'] = float(data_dlb['grid_power']) / 10
+                else:
+                    data['grid_import'] = float(data_dlb['grid_power']) / 10
+                    data['grid_export'] = 0
+
                 data['house_power'] = float(data_dlb['house_power']) / 10
                 data['ev_power'] = float(data_dlb['ev_power']) / 10
                 data['solar_power'] = float(data_dlb['solar_power']) / 10

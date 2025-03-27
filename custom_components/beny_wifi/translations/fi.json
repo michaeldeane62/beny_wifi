@@ -35,8 +35,11 @@
         "current3": {
           "name": "Virta L3"
         },
-        "grid_power": {
-          "name": "DLB Verkon teho"
+        "grid_import": {
+          "name": "DLB Verkko tuonti"
+        },
+        "grid_export": {
+          "name": "DLB Verkko vienti"
         },
         "ev_power": {
           "name": "DLB EV teho"

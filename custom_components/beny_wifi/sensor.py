@@ -58,7 +58,8 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     # TODO: DLB
     if dlb:
         sensors.extend([
-            BenyWifiPowerSensor(coordinator, "grid_power", icon="mdi:transmission-tower", device_id=device_id, device_model=device_model),
+            BenyWifiPowerSensor(coordinator, "grid_import", icon="mdi:transmission-tower-import", device_id=device_id, device_model=device_model),
+            BenyWifiPowerSensor(coordinator, "grid_export", icon="mdi:transmission-tower-export", device_id=device_id, device_model=device_model),
             BenyWifiPowerSensor(coordinator, "solar_power", icon="mdi:solar-power-variant", device_id=device_id, device_model=device_model),
             BenyWifiPowerSensor(coordinator, "ev_power", icon="mdi:car-electric", device_id=device_id, device_model=device_model),
             BenyWifiPowerSensor(coordinator, "house_power", icon="mdi:home-lightning-bolt", device_id=device_id, device_model=device_model),
