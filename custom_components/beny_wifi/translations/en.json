@@ -35,8 +35,11 @@
         "current3": {
           "name": "Current L3"
         },
-        "grid_power": {
-          "name": "DLB Grid Power"
+        "grid_import": {
+          "name": "DLB Grid Import"
+        },
+        "grid_export": {
+          "name": "DLB Grid Export"
         },
         "ev_power": {
           "name": "DLB EV Power"

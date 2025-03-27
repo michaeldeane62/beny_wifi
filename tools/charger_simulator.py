@@ -7,12 +7,13 @@ import re
 from copy import deepcopy
 
 from const import SERVER_MESSAGE
-from communication import build_message
+from communication import build_message, calculate_checksum
 from conversions import get_hex
 import socket
 import struct
 
-CONFIG_FILE = "messages.json"
+CONFIG_FILE = "messages_beny_pedrov.json"
+#CONFIG_FILE = "messages_22032025.json"
 UDP_IP = "0.0.0.0"
 UDP_PORT = 3333
 
@@ -71,6 +72,7 @@ while True:
     for request, response in response.items():
         if check_message(data, request):
             if type(response) == str:
+                response += f"{calculate_checksum(response):02x}"
                 sock.sendto(response.encode('ascii'), addr)
             elif type(response) == dict:
                 mtype = SERVER_MESSAGE[response['type']]
@@ -81,7 +83,7 @@ while True:
                         response['params'][key] = value.encode().hex()
                         while len(response['params'][key]) < 41:
                             response['params'][key] += '0'
-                        response['params'][key] += '11900'
+                        response['params'][key] += '11001'
                     else:
                         response['params'][key] = get_hex(value)
                 response = build_message(mtype, params=response['params'])

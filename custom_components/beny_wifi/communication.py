@@ -71,6 +71,13 @@ def read_message(data, msg_type:str | None = None) -> dict:  # noqa: C901
             try:
                 if param in ["grid_power", "ev_power", "house_power", "solar_power"]:
                     msg[param] = float(value) / 10
+                elif param == "grid_export":
+                    if int(value) > 0:
+                        msg[param] = True
+                    else:
+                        msg[param] = False
+                elif param == "request_type":
+                    msg[param] = REQUEST_TYPE(value).name
                 else:
                     msg[param] = value
             except ValueError:
