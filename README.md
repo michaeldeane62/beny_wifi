@@ -102,7 +102,7 @@ Currently integration supports following actions:
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
-- all done at the moment!
+- add possibility to set maximum current
 
 ### Troubleshooting guide
 
