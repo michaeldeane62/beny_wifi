@@ -37,11 +37,10 @@ Integration should support 1-phase and 3-phase "smart" chargers with or without 
 ### Installation
 
 **Using HACS**
-You can now find this plugin from HACS Store!
 
-OR
+You can now find this plugin from HACS Store! 
 
-Install it from repository:
+Or alternatively add repository to HACS:
 - Click three dots in the upper right corner of HACS.
 - From the menu, select Custom Repositories
 - Paste link of this repository to Repository field
