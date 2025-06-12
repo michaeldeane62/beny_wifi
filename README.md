@@ -11,6 +11,8 @@
     <img alt="Version" src="https://img.shields.io/github/manifest-json/v/Jarauvi/beny_wifi?filename=custom_components%2Fbeny_wifi%2Fmanifest.json&label=Version">
 </div>
 
+*PRs accepted! My progress with this integration is veeery slow right now and I definitely appreciate help!*
+
 ⚠️*DISCLAIMER: I DO NOT TAKE ANY RESPONSIBILITY OF DAMAGED OR DESTROYED PROPERTY, INJURIES OR HUMAN CASUALTIES. USE AT YOUR OWN RISK*
 
 <div align="left">
@@ -35,6 +37,10 @@ Integration should support 1-phase and 3-phase "smart" chargers with or without 
 ### Installation
 
 **Using HACS**
+
+You can now find this plugin from HACS Store! 
+
+Or alternatively add repository to HACS:
 - Click three dots in the upper right corner of HACS.
 - From the menu, select Custom Repositories
 - Paste link of this repository to Repository field
@@ -96,7 +102,7 @@ Currently integration supports following actions:
 ### Roadmap
 
 I am pretty busy with the most adorable baby boy right now, but I'll be adding some bells and whistles when I have a moment:
-- all done at the moment!
+- add possibility to set maximum current
 
 ### Troubleshooting guide
 
