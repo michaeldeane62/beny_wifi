@@ -29,9 +29,11 @@ _LOGGER = logging.getLogger(__name__)
 class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
     """Beny Wifi update coordinator."""
 
+
     def __init__(
         self,
         hass: HomeAssistant,
+        config_entry,  # ADDED: Missing config_entry parameter
         ip_address,
         port,
         scan_interval,
@@ -43,7 +45,8 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             name=DOMAIN,
             update_interval=timedelta(seconds=scan_interval),
         )
-
+    
+        self.config_entry = config_entry  # ADDED: Store config_entry
         self.ip_address = ip_address
         self.port = port
         self.hass = hass
@@ -66,6 +69,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
 
             # Send UDP request asynchronously
             loop = asyncio.get_event_loop()
+            # The retry logic is now encapsulated within _send_udp_request
             response = await loop.run_in_executor(None, self._send_udp_request, request)
 
             # Decode and parse the response
@@ -138,6 +142,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     },
                 ).encode("ascii")
 
+                # The retry logic is now encapsulated within _send_udp_request
                 response_dlb = await loop.run_in_executor(None, self._send_udp_request, request)
                 response_dlb = response_dlb.decode("ascii")
                 data_dlb = read_message(response_dlb)
@@ -159,20 +164,34 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             _LOGGER.error(f"Failed to fetch data: {err}")
             raise UpdateFailed(f"Error fetching data: {err}")
 
-    def _send_udp_request(self, request):
-        """Send UDP request synchronously in a separate thread."""
-        try:
-            sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            sock.settimeout(5)  # 5 seconds timeout
-            sock.sendto(request, (self.ip_address, self.port))
+    def _send_udp_request(self, request, retries=2, timeout=8):
+        """Send UDP request synchronously in a separate thread, with retries."""
+        for attempt in range(retries):
+            sock = None  # Initialize sock outside the try block
+            try:
+                sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                sock.settimeout(timeout)  # Use the passed timeout parameter
+                sock.sendto(request, (self.ip_address, self.port))
 
-            response, addr = sock.recvfrom(1024)
-            return response
-        except Exception as err:
-            _LOGGER.error(f"UDP request failed: {err}")
-            raise UpdateFailed(f"Error sending UDP request: {err}")
-        finally:
-            sock.close()
+                response, addr = sock.recvfrom(1024)
+                return response
+            except socket.timeout:
+                _LOGGER.warning(
+                    f"UDP request timed out (attempt {attempt + 1}/{retries}). Retrying..."
+                )
+                if attempt == retries - 1:  # If this was the last attempt
+                    _LOGGER.error(f"UDP request failed after {retries} attempts due to timeout.")
+                    raise UpdateFailed(f"Error sending UDP request: timed out after {retries} attempts")
+            except Exception as err:
+                _LOGGER.error(f"UDP request failed: {err}")
+                raise UpdateFailed(f"Error sending UDP request: {err}")
+            finally:
+                if sock: # Ensure sock was created before trying to close it
+                    sock.close()
+        # This part should theoretically not be reached if an exception is always raised on last retry
+        # but included for clarity.
+        raise UpdateFailed("Unknown error after retries in _send_udp_request")
+
 
     async def async_toggle_charging(self, device_name: str, command: str):
         """Start or stop charging service."""
@@ -202,6 +221,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 return
 
             loop = asyncio.get_event_loop()
+            # The retry logic is now encapsulated within _send_udp_request
             await loop.run_in_executor(None, self._send_udp_request, request)
 
             _LOGGER.info(f"{device_name}: {command} charging command sent")
@@ -218,6 +238,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ).encode("ascii")
 
         loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
         await loop.run_in_executor(None, self._send_udp_request, request)
 
         _LOGGER.info(f"{device_name}: maximum monthly consumption set")
@@ -234,6 +255,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ).encode("ascii")
 
         loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
         await loop.run_in_executor(None, self._send_udp_request, request)
 
         _LOGGER.info(f"{device_name}: maximum session consumption set")
@@ -250,6 +272,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             request = build_message(CLIENT_MESSAGE.SET_TIMER, timer_data).encode("ascii")
 
             loop = asyncio.get_event_loop()
+            # The retry logic is now encapsulated within _send_udp_request
             await loop.run_in_executor(None, self._send_udp_request, request)
 
             _LOGGER.info(f"{device_name}: charging timer set")
@@ -261,6 +284,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         request = build_message(CLIENT_MESSAGE.SET_SCHEDULE, schedule_data).encode("ascii")
 
         loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
         await loop.run_in_executor(None, self._send_udp_request, request)
 
         _LOGGER.info(f"{device_name}: charging schedule set")
@@ -277,6 +301,7 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             ).encode("ascii")
 
             loop = asyncio.get_event_loop()
+            # The retry logic is now encapsulated within _send_udp_request
             await loop.run_in_executor(None, self._send_udp_request, request)
 
             _LOGGER.info(f"{device_name}: charging timer reset")
@@ -288,7 +313,12 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             CLIENT_MESSAGE.REQUEST_SETTINGS, {"pin": self.config_entry.data[CONF_PIN]}
         ).encode("ascii")
 
-        response = self._send_udp_request(request)
+        # This call to _send_udp_request is NOT awaited, which is usually a bug.
+        # It should be awaited, but it's directly called here without `loop.run_in_executor`.
+        # I'm adding `await loop.run_in_executor` to make it consistent with other calls.
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(None, self._send_udp_request, request)
+
         response = response.decode("ascii")
         data = read_message(response, SERVER_MESSAGE.SEND_SETTINGS)
         data["start_time"] = f"{data['timer_start_h']}:{data['timer_start_min']}"
@@ -320,7 +350,170 @@ class BenyWifiUpdateCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         ).encode("ascii")
 
         loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
         await loop.run_in_executor(None, self._send_udp_request, request)
 
         _LOGGER.info(f"{device_name}: max current set to {max_current}A")
 
+
+    async def async_toggle_charging(self, device_name: str, command: str):
+        """Start or stop charging service."""
+
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_charger_state"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
+
+        if state_sensor_value and state_sensor_value.state != CHARGER_STATE.UNPLUGGED.name.lower():
+            if command == "start":
+                request = build_message(
+                    CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
+                    {
+                        "pin": self.config_entry.data[CONF_PIN],
+                        "charger_command": get_hex(CHARGER_COMMAND.START.value),
+                    },
+                ).encode("ascii")
+            elif command == "stop":
+                request = build_message(
+                    CLIENT_MESSAGE.SEND_CHARGER_COMMAND,
+                    {
+                        "pin": self.config_entry.data[CONF_PIN],
+                        "charger_command": get_hex(CHARGER_COMMAND.STOP.value),
+                    },
+                ).encode("ascii")
+            else:
+                _LOGGER.error(f"Unknown command: {command}")
+                return
+
+            loop = asyncio.get_event_loop()
+            # The retry logic is now encapsulated within _send_udp_request
+            await loop.run_in_executor(None, self._send_udp_request, request)
+
+            _LOGGER.info(f"{device_name}: {command} charging command sent")
+
+    async def async_set_max_monthly_consumption(self, device_name: str, maximum_consumption: int):
+        """Set maximum consumption."""
+
+        request = build_message(
+            CLIENT_MESSAGE.SET_MAX_MONTHLY_CONSUMPTION,
+            {
+                "pin": self.config_entry.data[CONF_PIN],
+                "maximum_consumption": get_hex(maximum_consumption, 4),
+            },
+        ).encode("ascii")
+
+        loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
+        await loop.run_in_executor(None, self._send_udp_request, request)
+
+        _LOGGER.info(f"{device_name}: maximum monthly consumption set")
+
+    async def async_set_max_session_consumption(self, device_name: str, maximum_consumption: int):
+        """Set maximum session consumption."""
+
+        request = build_message(
+            CLIENT_MESSAGE.SET_MAX_SESSION_CONSUMPTION,
+            {
+                "pin": self.config_entry.data[CONF_PIN],
+                "maximum_consumption": get_hex(maximum_consumption),
+            },
+        ).encode("ascii")
+
+        loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
+        await loop.run_in_executor(None, self._send_udp_request, request)
+
+        _LOGGER.info(f"{device_name}: maximum session consumption set")
+
+    async def async_set_timer(self, device_name: str, start_time: str, end_time: str):
+        """Set charging timer."""
+
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_charger_state"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
+
+        if state_sensor_value and state_sensor_value.state != CHARGER_STATE.UNPLUGGED.name.lower():
+            timer_data = convert_timer(start_time, end_time)
+            timer_data["pin"] = self.config_entry.data[CONF_PIN]
+            request = build_message(CLIENT_MESSAGE.SET_TIMER, timer_data).encode("ascii")
+
+            loop = asyncio.get_event_loop()
+            # The retry logic is now encapsulated within _send_udp_request
+            await loop.run_in_executor(None, self._send_udp_request, request)
+
+            _LOGGER.info(f"{device_name}: charging timer set")
+
+    async def async_set_schedule(self, device_name: str, weekdays: list[bool], start_time: str, end_time: str):
+        """Set charging schedule."""
+        schedule_data = convert_schedule(reversed(weekdays), start_time, end_time)
+        schedule_data["pin"] = self.config_entry.data[CONF_PIN]
+        request = build_message(CLIENT_MESSAGE.SET_SCHEDULE, schedule_data).encode("ascii")
+
+        loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
+        await loop.run_in_executor(None, self._send_udp_request, request)
+
+        _LOGGER.info(f"{device_name}: charging schedule set")
+
+    async def async_reset_timer(self, device_name: str):
+        """Reset charging timer."""
+
+        state_sensor_id = f"sensor.{self.config_entry.data[SERIAL]}_charger_state"
+        state_sensor_value = self.hass.states.get(state_sensor_id)
+
+        if state_sensor_value and state_sensor_value.state != CHARGER_STATE.UNPLUGGED.name.lower():
+            request = build_message(
+                CLIENT_MESSAGE.RESET_TIMER, {"pin": self.config_entry.data[CONF_PIN]}
+            ).encode("ascii")
+
+            loop = asyncio.get_event_loop()
+            # The retry logic is now encapsulated within _send_udp_request
+            await loop.run_in_executor(None, self._send_udp_request, request)
+
+            _LOGGER.info(f"{device_name}: charging timer reset")
+
+    async def async_request_weekly_schedule(self, device_name: str):
+        """Get set weekly schedule from charger."""
+
+        request = build_message(
+            CLIENT_MESSAGE.REQUEST_SETTINGS, {"pin": self.config_entry.data[CONF_PIN]}
+        ).encode("ascii")
+
+        # This call to _send_udp_request is NOT awaited, which is usually a bug.
+        # It should be awaited, but it's directly called here without `loop.run_in_executor`.
+        # I'm adding `await loop.run_in_executor` to make it consistent with other calls.
+        loop = asyncio.get_event_loop()
+        response = await loop.run_in_executor(None, self._send_udp_request, request)
+
+        response = response.decode("ascii")
+        data = read_message(response, SERVER_MESSAGE.SEND_SETTINGS)
+        data["start_time"] = f"{data['timer_start_h']}:{data['timer_start_min']}"
+        data["end_time"] = f"{data['timer_end_h']}:{data['timer_end_min']}"
+
+        _LOGGER.info(f"{device_name}: requested weekly schedule")
+
+        return {
+            "result": {
+                "schedule": data["schedule"],
+                "weekdays": data["weekdays"],
+                "start_time": data["start_time"],
+                "end_time": data["end_time"],
+            }
+        }
+
+    async def async_set_max_current(self, device_name: str, max_current: int):
+        """Set maximum charging current (6A–32A) on the charger."""
+        if not (6 <= max_current <= 32):
+            raise ValueError("Maximum current must be between 6 and 32 amps")
+
+        # Build the message using your existing hex template
+        request = build_message(
+            CLIENT_MESSAGE.SET_MAX_CURRENT,
+            {
+                "pin": self.config_entry.data[CONF_PIN],
+                "max_current": format(max_current, "02x"),
+            },
+        ).encode("ascii")
+
+        loop = asyncio.get_event_loop()
+        # The retry logic is now encapsulated within _send_udp_request
+        await loop.run_in_executor(None, self._send_udp_request, request)
+
+        _LOGGER.info(f"{device_name}: max current set to {max_current}A")
